@@ -145,7 +145,11 @@ export default function InteractiveSpreadsheetMapper({
       try {
         const formData = new FormData();
         formData.append("excel_file", excelFile);
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+        const backendUrl =
+          process.env.NEXT_PUBLIC_BACKEND_URL ||
+          (typeof window !== "undefined" && window.location.hostname
+            ? `${window.location.protocol}//${window.location.hostname}:8000`
+            : "http://localhost:8000");
         const res = await fetch(`${backendUrl}/api/inspect-excel`, {
           method: "POST",
           body: formData,

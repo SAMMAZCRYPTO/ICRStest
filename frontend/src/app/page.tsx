@@ -7,7 +7,15 @@ import InteractiveSpreadsheetMapper, {
 } from "@/components/InteractiveSpreadsheetMapper";
 import { MappingConfig } from "@/types/crs";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+function getBackendUrl(): string {
+  if (process.env.NEXT_PUBLIC_BACKEND_URL) {
+    return process.env.NEXT_PUBLIC_BACKEND_URL;
+  }
+  if (typeof window !== "undefined" && window.location.hostname) {
+    return `${window.location.protocol}//${window.location.hostname}:8000`;
+  }
+  return "http://localhost:8000";
+}
 
 export default function Home() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -31,7 +39,7 @@ export default function Home() {
       try {
         const formData = new FormData();
         formData.append("pdf_file", pdfFile);
-        const res = await fetch(`${BACKEND_URL}/api/inspect-pdf`, {
+        const res = await fetch(`${getBackendUrl()}/api/inspect-pdf`, {
           method: "POST",
           body: formData,
         });
@@ -69,16 +77,21 @@ export default function Home() {
       formData.append("excel_file", excelFile);
       formData.append("mapping_config", JSON.stringify(config));
 
-      const response = await fetch(`${BACKEND_URL}/api/process`, {
+      const response = await fetch(`${getBackendUrl()}/api/process`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        let errorDetail = "Server processing failed.";
+        let errorDetail = `Server processing failed (${response.status}: ${response.statusText})`;
         try {
-          const errData = await response.json();
-          errorDetail = errData.detail || errorDetail;
+          const text = await response.text();
+          try {
+            const errData = JSON.parse(text);
+            errorDetail = errData.detail || text || errorDetail;
+          } catch {
+            if (text) errorDetail = `${errorDetail} - ${text.slice(0, 150)}`;
+          }
         } catch (_) {}
         throw new Error(errorDetail);
       }
