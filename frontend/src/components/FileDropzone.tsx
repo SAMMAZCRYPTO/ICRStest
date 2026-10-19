@@ -1,0 +1,189 @@
+"use client";
+
+import React, { useRef } from "react";
+import { FileText, FileSpreadsheet, UploadCloud, X, CheckCircle } from "lucide-react";
+
+interface FileDropzoneProps {
+  label: string;
+  sublabel: string;
+  accept: string;
+  file: File | null;
+  onFileSelect: (file: File | null) => void;
+  iconType: "pdf" | "excel";
+  stepNumber: string; // "1" or "2"
+  extraInfo?: string;
+}
+
+export default function FileDropzone({
+  label,
+  sublabel,
+  accept,
+  file,
+  onFileSelect,
+  iconType,
+  stepNumber,
+  extraInfo,
+}: FileDropzoneProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const droppedFile = e.dataTransfer.files[0];
+      validateAndSet(droppedFile);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      validateAndSet(e.target.files[0]);
+    }
+  };
+
+  const validateAndSet = (f: File) => {
+    const ext = f.name.toLowerCase();
+    if (iconType === "pdf" && !ext.endsWith(".pdf")) {
+      alert("Please upload a valid .pdf file.");
+      return;
+    }
+    if (iconType === "excel" && !ext.endsWith(".xlsx") && !ext.endsWith(".xlsm")) {
+      alert("Please upload a valid .xlsx or .xlsm file.");
+      return;
+    }
+    onFileSelect(f);
+  };
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  return (
+    <div className="w-full">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        onChange={handleInputChange}
+        className="hidden"
+      />
+
+      {!file ? (
+        <div
+          onClick={() => inputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all border-2 border-dashed border-outline-variant hover:border-primary flex flex-col justify-between gap-space-md min-h-[175px] cursor-pointer group"
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-space-md">
+              <div
+                className={`w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center transition-transform group-hover:scale-105 ${
+                  iconType === "pdf" ? "text-primary" : "text-tertiary"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[24px]">
+                  {iconType === "pdf" ? "picture_as_pdf" : "table_view"}
+                </span>
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="font-semibold text-[15px] text-on-surface">
+                  {stepNumber}. {label}
+                </span>
+                <span className="text-xs text-on-surface-variant">
+                  {sublabel}
+                </span>
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[11px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-outline"></span>
+              Awaiting File
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-on-surface-variant pt-2 border-t border-outline-variant/40">
+            <span className="font-medium text-primary flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]">upload_file</span>
+              Click to browse or drop {iconType === "pdf" ? ".pdf" : ".xlsx/.xlsm"}
+            </span>
+            <span className="font-mono text-[11px] text-outline">RAM-only</span>
+          </div>
+        </div>
+      ) : (
+        /* Card in Uploaded State (Exact Match to design/code.html) */
+        <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-space-md relative overflow-hidden text-left border border-outline-variant/50">
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-tertiary"></div>
+          
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-space-md">
+              <div
+                className={`w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center ${
+                  iconType === "pdf" ? "text-primary" : "text-tertiary"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[24px]">
+                  {iconType === "pdf" ? "picture_as_pdf" : "table_view"}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-semibold text-[15px] text-on-surface">
+                  {stepNumber}. {label}
+                </span>
+                <span className="text-xs text-on-surface-variant">
+                  {sublabel}
+                </span>
+              </div>
+            </div>
+
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed/40 text-on-tertiary-fixed text-[11px] font-semibold">
+              <span className="material-symbols-outlined text-tertiary text-[14px]">check_circle</span>
+              <span>Uploaded</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5 bg-surface rounded-lg p-2.5 border border-outline-variant/40">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-[13px] text-on-surface truncate max-w-[280px]">
+                {file.name}
+              </span>
+              <span className="font-mono text-[11px] text-on-surface-variant shrink-0">
+                {formatSize(file.size)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-on-surface-variant text-xs">
+              <span className="inline-flex items-center gap-1.5 text-on-surface font-medium truncate max-w-[280px]">
+                {iconType === "pdf" ? (
+                  <>
+                    <span className="material-symbols-outlined text-[16px] text-tertiary">layers</span>
+                    {extraInfo || "PDF Drawing Package"}
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[16px] text-tertiary">tab</span>
+                    {extraInfo || "Excel CRS Template"}
+                  </>
+                )}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className="text-[11px] font-semibold text-primary hover:underline transition-colors flex items-center gap-0.5 shrink-0 cursor-pointer"
+              >
+                Replace {iconType === "pdf" ? "PDF" : "Excel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Node & Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+tsconfig.tsbuildinfo
+
+# Excel & Temporary test outputs
+test_*.xlsx
+test_*.pdf
+CRS_Resolved_*.xlsx
+*.tmp
+
+# Environment variables & OS files
+.env
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db

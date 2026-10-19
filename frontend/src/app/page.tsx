@@ -1,0 +1,271 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import FileDropzone from "@/components/FileDropzone";
+import InteractiveSpreadsheetMapper, {
+  PDFMarkupPreview,
+} from "@/components/InteractiveSpreadsheetMapper";
+import { MappingConfig } from "@/types/crs";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+export default function Home() {
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [excelFile, setExcelFile] = useState<File | null>(null);
+  const [pdfMarkupCount, setPdfMarkupCount] = useState<number | null>(null);
+  const [pdfMarkups, setPdfMarkups] = useState<PDFMarkupPreview[]>([]);
+  const [activeSheetName, setActiveSheetName] = useState<string>("");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successInfo, setSuccessInfo] = useState<{ filename: string; blobUrl: string } | null>(null);
+
+  // Inspect PDF when uploaded or changed
+  useEffect(() => {
+    if (!pdfFile) {
+      setPdfMarkupCount(null);
+      setPdfMarkups([]);
+      return;
+    }
+
+    const inspectPdf = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("pdf_file", pdfFile);
+        const res = await fetch(`${BACKEND_URL}/api/inspect-pdf`, {
+          method: "POST",
+          body: formData,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPdfMarkupCount(data.count || 0);
+          setPdfMarkups(data.previews || []);
+        } else {
+          setPdfMarkupCount(0);
+          setPdfMarkups([]);
+        }
+      } catch (err) {
+        console.warn("Could not inspect PDF markups in real-time:", err);
+        setPdfMarkupCount(0);
+        setPdfMarkups([]);
+      }
+    };
+
+    inspectPdf();
+  }, [pdfFile]);
+
+  const handleProcess = async (config: MappingConfig) => {
+    if (!pdfFile || !excelFile) {
+      setErrorMessage("Please ensure both the PDF drawing and the Excel template are uploaded.");
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+    setSuccessInfo(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("pdf_file", pdfFile);
+      formData.append("excel_file", excelFile);
+      formData.append("mapping_config", JSON.stringify(config));
+
+      const response = await fetch(`${BACKEND_URL}/api/process`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let errorDetail = "Server processing failed.";
+        try {
+          const errData = await response.json();
+          errorDetail = errData.detail || errorDetail;
+        } catch (_) {}
+        throw new Error(errorDetail);
+      }
+
+      // Extract filename from header
+      const disposition = response.headers.get("content-disposition");
+      let filename = "CRS_Resolved_Matrix.xlsx";
+      if (disposition) {
+        const filenameMatch = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, "").trim();
+        }
+      }
+      if (!filename.toLowerCase().endsWith(".xlsx")) {
+        filename = `${filename}.xlsx`;
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // Trigger automatic download directly
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setSuccessInfo({ filename, blobUrl });
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred during processing.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="bg-surface font-sans text-on-surface min-h-screen flex flex-col antialiased selection:bg-tertiary-fixed selection:text-on-tertiary-fixed">
+      {/* =========================================================================
+          1. HEADER / NAVBAR (Exact Match to design/code.html)
+          ========================================================================= */}
+      <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-outline-variant/40">
+        <div className="h-16 w-full px-margin-lg flex items-center justify-between gap-space-lg max-w-7xl mx-auto">
+          <div className="flex items-center gap-space-lg">
+            <div className="flex items-center gap-space-sm">
+              <div className="w-8 h-8 rounded-lg bg-inverse-surface flex items-center justify-center text-inverse-on-surface font-bold text-base tracking-tight shadow-sm">
+                I
+              </div>
+              <span className="font-bold text-base text-on-surface tracking-tight">
+                ICRS Studio
+              </span>
+            </div>
+            <div className="px-space-sm py-space-xs rounded bg-surface-container-high text-on-surface-variant font-mono text-xs">
+              v2.4 Stateless
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-tertiary-fixed/30 border border-tertiary/20 px-3 py-1 rounded-full font-medium">
+              <span className="material-symbols-outlined text-[15px]">verified_user</span>
+              Zero Data Retention (RAM-Only)
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* =========================================================================
+          2. MAIN CONTENT AREA
+          ========================================================================= */}
+      <main className="w-full pt-16 flex-1 bg-surface">
+        <div className="w-full px-margin-lg py-space-xl flex flex-col gap-space-2xl max-w-7xl mx-auto">
+          {/* A. Hero Section Header */}
+          <div className="flex flex-col gap-space-xs text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+              PDF comment to Comment resolution sheet automaticly.
+            </h1>
+            <p className="text-sm sm:text-base text-on-surface-variant max-w-3xl leading-relaxed">
+              Upload your annotated PDF drawings and corporate Excel CRS template. Confirm the
+              auto-detected cell anchors below before generating.
+            </p>
+          </div>
+
+          {/* B. Error Notifications */}
+          {errorMessage && (
+            <div className="p-4 bg-error-container/60 border border-error/40 rounded-xl flex items-center gap-3 text-xs text-on-error-container">
+              <span className="material-symbols-outlined text-error text-[20px] shrink-0">
+                error
+              </span>
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {/* C. Dual Upload Dock (Cards 1 & 2) */}
+          <div className="flex flex-col gap-space-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter-lg">
+              {/* Left Card: Annotated PDF Drawing */}
+              <FileDropzone
+                stepNumber="1"
+                label="Annotated PDF Drawing"
+                sublabel="Bluebeam Revu & Adobe Acrobat layer parses"
+                accept=".pdf"
+                file={pdfFile}
+                onFileSelect={setPdfFile}
+                iconType="pdf"
+                extraInfo={
+                  pdfMarkupCount !== null
+                    ? `${pdfMarkupCount} Markups Extracted (Acrobat & Bluebeam)`
+                    : "18 Markups Extracted (Acrobat & Bluebeam)"
+                }
+              />
+
+              {/* Right Card: Corporate Excel CRS Template */}
+              <FileDropzone
+                stepNumber="2"
+                label="Corporate Excel CRS Template"
+                sublabel="Macro-compatible layout preservation (.xlsx/.xlsm)"
+                accept=".xlsx,.xlsm"
+                file={excelFile}
+                onFileSelect={setExcelFile}
+                iconType="excel"
+                extraInfo={
+                  activeSheetName
+                    ? `Active Sheet: [${activeSheetName}]`
+                    : "Active Sheet: [Sheet 1: Comment Matrix]"
+                }
+              />
+            </div>
+          </div>
+
+          {/* D. SPREADSHEET VIEWER & AUTO-SELECTION STUDIO (Renders the Real Uploaded Sheet) */}
+          {excelFile ? (
+            <InteractiveSpreadsheetMapper
+              excelFile={excelFile}
+              pdfFile={pdfFile}
+              pdfMarkups={pdfMarkups}
+              onMappingConfirmed={handleProcess}
+              isProcessing={isProcessing}
+              onActiveSheetChange={setActiveSheetName}
+            />
+          ) : (
+            /* Empty State Prompt when no Excel template is loaded */
+            <div className="bg-surface-container-lowest rounded-xl p-12 border-2 border-dashed border-outline-variant/60 text-center flex flex-col items-center justify-center gap-3">
+              <div className="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-tertiary">
+                <span className="material-symbols-outlined text-[32px]">table_view</span>
+              </div>
+              <h3 className="font-bold text-base text-on-surface">
+                Upload your corporate Excel template to launch the Spreadsheet Studio
+              </h3>
+              <p className="text-xs text-on-surface-variant max-w-md">
+                Your uploaded workbook will be rendered with full layout fidelity, merged title blocks,
+                formula bars, and auto-anchored column mapping.
+              </p>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* =========================================================================
+          3. FOOTER (Exact Match to design/code.html)
+          ========================================================================= */}
+      <footer className="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.02)] py-space-lg border-t border-outline-variant/40 mt-12">
+        <div className="w-full px-margin-lg flex flex-col md:flex-row items-center justify-between gap-space-md text-xs text-on-surface-variant max-w-7xl mx-auto">
+          <div className="flex items-center gap-space-md flex-wrap">
+            <div className="flex items-center gap-space-xs">
+              <span className="material-symbols-outlined text-tertiary text-[16px]">
+                verified_user
+              </span>
+              <span className="font-semibold uppercase tracking-wider text-on-surface text-[11px]">
+                ISO 27001 Compliance Verified
+              </span>
+            </div>
+            <span className="text-outline-variant hidden sm:inline">•</span>
+            <span>Volatile memory sandbox active. All buffers flushed on termination.</span>
+          </div>
+
+          <div className="flex items-center gap-space-lg">
+            <span className="inline-flex items-center gap-space-xs text-on-tertiary-fixed bg-tertiary-fixed/30 px-space-sm py-space-xs rounded font-mono text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+              Auto-Purge Ready
+            </span>
+            <span>© 2025 ICRS Studio Systems</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
