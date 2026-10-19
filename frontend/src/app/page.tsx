@@ -7,7 +7,7 @@ import InteractiveSpreadsheetMapper, {
 } from "@/components/InteractiveSpreadsheetMapper";
 import { MappingConfig } from "@/types/crs";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 
 export default function Home() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
