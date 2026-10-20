@@ -25,7 +25,6 @@ export default function Home() {
   const [activeSheetName, setActiveSheetName] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successInfo, setSuccessInfo] = useState<{ filename: string; blobUrl: string } | null>(null);
 
   // Inspect PDF when uploaded or changed
   useEffect(() => {
@@ -69,7 +68,6 @@ export default function Home() {
 
     setIsProcessing(true);
     setErrorMessage(null);
-    setSuccessInfo(null);
 
     try {
       const formData = new FormData();
@@ -113,17 +111,25 @@ export default function Home() {
       const blob = new Blob([arrayBuffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      const blobUrl = window.URL.createObjectURL(blob);
 
-      // Trigger automatic download directly
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      // Convert to Data URL (base64) to bypass browser's insecure blob:http:// download blocker on IP addresses
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = (reader.result as string) || window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          if (dataUrl.startsWith("blob:")) {
+            window.URL.revokeObjectURL(dataUrl);
+          }
+        }, 250);
+      };
+      reader.readAsDataURL(blob);
 
-      setSuccessInfo({ filename, blobUrl });
     } catch (err: any) {
       setErrorMessage(err.message || "An unexpected error occurred during processing.");
     } finally {
