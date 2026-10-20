@@ -244,7 +244,7 @@ export default function SplitScreenReviewModal({
           <button
             onClick={onGenerateCRS}
             disabled={isProcessing}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-on-primary text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm hover:shadow transition-all cursor-pointer disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-[17px]">
               {isProcessing ? "sync" : "download"}

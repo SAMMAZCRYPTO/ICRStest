@@ -1189,7 +1189,7 @@ export default function InteractiveSpreadsheetMapper({
             type="button"
             onClick={handleConfirm}
             disabled={isProcessing}
-            className="px-6 py-2.5 rounded-lg bg-tertiary hover:bg-tertiary-container text-on-tertiary font-bold text-xs tracking-wide transition-all shadow-md hover:shadow-lg flex items-center gap-2 group cursor-pointer disabled:opacity-50"
+            className="px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all shadow-md hover:shadow-lg flex items-center gap-2 group cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
               <>
