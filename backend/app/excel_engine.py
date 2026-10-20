@@ -14,7 +14,7 @@ import io
 import math
 import re
 import openpyxl
-from openpyxl.cell.cell import MergedCell
+from openpyxl.cell.cell import MergedCell, ILLEGAL_CHARACTERS_RE
 from openpyxl.drawing.image import Image as OpenpyxlImage
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
@@ -50,6 +50,8 @@ def safe_set_cell_value(ws, col_letter: str, row_idx: int, value, alignment: Opt
                 break
 
     try:
+        if isinstance(value, str):
+            value = ILLEGAL_CHARACTERS_RE.sub("", value)
         cell.value = value
         if alignment:
             cell.alignment = alignment
