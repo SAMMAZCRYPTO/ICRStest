@@ -646,72 +646,8 @@ export default function InteractiveSpreadsheetMapper({
             <span className="material-symbols-outlined text-[15px] text-emerald-600">text_fields</span>
             <span>Text-Only Mode</span>
           </div>
-
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-container-lowest border border-outline-variant/60 text-[12px] text-on-surface-variant">
-            <span className="material-symbols-outlined text-[15px] text-tertiary">check_circle</span>
-            <span>Macro (.xlsm) Engine Intact</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowFilterConfig(!showFilterConfig)}
-            className="px-2.5 py-1 text-[12px] font-medium text-primary hover:bg-surface-container-high rounded transition-colors flex items-center gap-1 cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[16px]">filter_alt</span>
-            <span>Filter Config</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleOpenGridInNewWindow}
-            className="px-2.5 py-1 text-[12px] font-semibold text-primary hover:bg-surface-container-high rounded transition-colors flex items-center gap-1.5 cursor-pointer border border-primary/20 bg-primary/5 shadow-2xs"
-            title="Open Excel grid in a new standalone window"
-          >
-            <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-            <span>Expand Grid</span>
-          </button>
-
-          {onOpenSplitReview && (
-            <button
-              type="button"
-              onClick={onOpenSplitReview}
-              className="px-3 py-1 text-[12px] font-semibold text-tertiary hover:bg-tertiary-fixed/40 rounded transition-colors flex items-center gap-1.5 cursor-pointer border border-tertiary/40 bg-tertiary-fixed/20 shadow-2xs hover:shadow-xs"
-              title="Open side-by-side split screen to cross-verify Excel comments against PDF drawing markups"
-            >
-              <span className="material-symbols-outlined text-[16px] text-tertiary">splitscreen</span>
-              <span>Side-by-Side Review</span>
-            </button>
-          )}
         </div>
       </div>
-
-      {/* Filter Config Popover / Tray */}
-      {showFilterConfig && (
-        <div className="px-space-md py-2 bg-surface-container-low border-b border-outline-variant/50 flex flex-wrap items-center justify-between text-xs text-on-surface-variant gap-3">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowAllRows(!showAllRows)}
-              className="text-primary hover:underline font-medium flex items-center gap-1 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[14px]">
-                {showAllRows ? "visibility_off" : "visibility"}
-              </span>
-              {showAllRows ? "Hide collapsed title block summary" : "Show all template title block rows"}
-            </button>
-            <span className="text-outline-variant">•</span>
-            <span>
-              Detected Table Header: <strong>Row {headerRowIdx + 1}</strong>
-            </span>
-          </div>
-          <button
-            onClick={() => autoDetectHeadersAndMap(workbook!, selectedSheet)}
-            className="text-xs bg-surface-container-lowest px-2.5 py-1 rounded border border-outline-variant hover:border-primary text-on-surface flex items-center gap-1 cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[14px]">refresh</span>
-            Re-detect Columns
-          </button>
-        </div>
-      )}
 
       {/* =========================================================================
           2. FORMULA BAR (Interactive Excel Telemetry)
@@ -1185,7 +1121,7 @@ export default function InteractiveSpreadsheetMapper({
             <button
               type="button"
               onClick={onOpenSplitReview}
-              className="px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-on-primary font-bold text-xs transition-all shadow-sm hover:shadow flex items-center gap-1.5 cursor-pointer"
+              className="px-space-lg py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-all shadow-sm hover:shadow-md flex items-center gap-1.5 cursor-pointer"
               title="Open side-by-side split screen linking Excel comments to the PDF drawing"
             >
               <span className="material-symbols-outlined text-[17px]">splitscreen</span>

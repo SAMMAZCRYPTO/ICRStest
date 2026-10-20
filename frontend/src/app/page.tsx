@@ -233,35 +233,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Cross-Verification Spotlight Banner */}
-          {excelFile && pdfFile && pdfMarkups.length > 0 && (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-gradient-to-r from-primary-fixed/20 via-surface-container-high to-tertiary-fixed/20 border border-primary/20 rounded-xl shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-xs shrink-0">
-                  <span className="material-symbols-outlined text-[22px]">splitscreen</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-xs sm:text-sm text-on-surface flex items-center gap-2">
-                    Side-by-Side Review &amp; Cross-Verification
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-tertiary text-on-tertiary font-bold">
-                      {pdfMarkups.length} Markups
-                    </span>
-                  </h4>
-                  <p className="text-xs text-on-surface-variant">
-                    Review and verify extracted comments directly linked to the PDF drawing sheets before final output.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsSplitReviewOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-on-primary font-semibold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer shrink-0"
-              >
-                <span className="material-symbols-outlined text-[17px]">open_in_full</span>
-                <span>Open Side-by-Side Review</span>
-              </button>
-            </div>
-          )}
 
           {/* D. SPREADSHEET VIEWER & AUTO-SELECTION STUDIO (Renders the Real Uploaded Sheet) */}
           {excelFile ? (
