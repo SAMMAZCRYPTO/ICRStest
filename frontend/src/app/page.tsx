@@ -5,6 +5,7 @@ import FileDropzone from "@/components/FileDropzone";
 import InteractiveSpreadsheetMapper, {
   PDFMarkupPreview,
 } from "@/components/InteractiveSpreadsheetMapper";
+import SplitScreenReviewModal from "@/components/SplitScreenReviewModal";
 import { MappingConfig } from "@/types/crs";
 
 function getBackendUrl(): string {
@@ -25,6 +26,8 @@ export default function Home() {
   const [activeSheetName, setActiveSheetName] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSplitReviewOpen, setIsSplitReviewOpen] = useState<boolean>(false);
+  const [activeMappingConfig, setActiveMappingConfig] = useState<MappingConfig | null>(null);
 
   // Inspect PDF when uploaded or changed
   useEffect(() => {
@@ -230,15 +233,49 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Cross-Verification Spotlight Banner */}
+          {excelFile && pdfFile && pdfMarkups.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-gradient-to-r from-primary-fixed/20 via-surface-container-high to-tertiary-fixed/20 border border-primary/20 rounded-xl shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-xs shrink-0">
+                  <span className="material-symbols-outlined text-[22px]">splitscreen</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs sm:text-sm text-on-surface flex items-center gap-2">
+                    Side-by-Side Review &amp; Cross-Verification
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-tertiary text-on-tertiary font-bold">
+                      {pdfMarkups.length} Markups
+                    </span>
+                  </h4>
+                  <p className="text-xs text-on-surface-variant">
+                    Review and verify extracted comments directly linked to the PDF drawing sheets before final output.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSplitReviewOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-on-primary font-semibold text-xs shadow-xs hover:shadow-sm transition-all cursor-pointer shrink-0"
+              >
+                <span className="material-symbols-outlined text-[17px]">open_in_full</span>
+                <span>Open Side-by-Side Review</span>
+              </button>
+            </div>
+          )}
+
           {/* D. SPREADSHEET VIEWER & AUTO-SELECTION STUDIO (Renders the Real Uploaded Sheet) */}
           {excelFile ? (
             <InteractiveSpreadsheetMapper
               excelFile={excelFile}
               pdfFile={pdfFile}
               pdfMarkups={pdfMarkups}
-              onMappingConfirmed={handleProcess}
+              onMappingConfirmed={(cfg) => {
+                setActiveMappingConfig(cfg);
+                handleProcess(cfg);
+              }}
               isProcessing={isProcessing}
               onActiveSheetChange={setActiveSheetName}
+              onOpenSplitReview={() => setIsSplitReviewOpen(true)}
             />
           ) : (
             /* Empty State Prompt when no Excel template is loaded */
@@ -285,6 +322,35 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* 4. SIDE-BY-SIDE SPLIT SCREEN REVIEW MODAL */}
+      <SplitScreenReviewModal
+        isOpen={isSplitReviewOpen}
+        onClose={() => setIsSplitReviewOpen(false)}
+        pdfFile={pdfFile}
+        excelFile={excelFile}
+        markups={pdfMarkups}
+        mappingConfig={activeMappingConfig}
+        onGenerateCRS={() => {
+          if (activeMappingConfig) {
+            handleProcess(activeMappingConfig);
+          } else {
+            handleProcess({
+              sheet_name: activeSheetName || undefined,
+              header_row: 10,
+              data_start_row: 11,
+              columns: {
+                item_no: "A",
+                page_num: "B",
+                author: "C",
+                date: "D",
+                comment_text: "E",
+              },
+            });
+          }
+        }}
+        isProcessing={isProcessing}
+      />
     </div>
   );
 }

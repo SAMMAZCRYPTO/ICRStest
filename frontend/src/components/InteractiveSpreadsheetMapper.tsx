@@ -12,6 +12,12 @@ export interface PDFMarkupPreview {
   comment_text: string;
   annot_type: string;
   render_mode: string;
+  target_x0?: number;
+  target_y0?: number;
+  target_x1?: number;
+  target_y1?: number;
+  page_width?: number;
+  page_height?: number;
   thumbnail?: string;
 }
 
@@ -22,6 +28,7 @@ interface InteractiveSpreadsheetMapperProps {
   onMappingConfirmed: (config: MappingConfig) => void;
   isProcessing: boolean;
   onActiveSheetChange?: (sheetName: string) => void;
+  onOpenSplitReview?: () => void;
 }
 
 // Available mapping roles matching corporate CRS workflows
@@ -47,6 +54,7 @@ export default function InteractiveSpreadsheetMapper({
   onMappingConfirmed,
   isProcessing,
   onActiveSheetChange,
+  onOpenSplitReview,
 }: InteractiveSpreadsheetMapperProps) {
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
   const [sheetNames, setSheetNames] = useState<string[]>([]);
@@ -662,6 +670,18 @@ export default function InteractiveSpreadsheetMapper({
             <span className="material-symbols-outlined text-[16px]">open_in_new</span>
             <span>Expand Grid</span>
           </button>
+
+          {onOpenSplitReview && (
+            <button
+              type="button"
+              onClick={onOpenSplitReview}
+              className="px-3 py-1 text-[12px] font-semibold text-tertiary hover:bg-tertiary-fixed/40 rounded transition-colors flex items-center gap-1.5 cursor-pointer border border-tertiary/40 bg-tertiary-fixed/20 shadow-2xs hover:shadow-xs"
+              title="Open side-by-side split screen to cross-verify Excel comments against PDF drawing markups"
+            >
+              <span className="material-symbols-outlined text-[16px] text-tertiary">splitscreen</span>
+              <span>Side-by-Side Review</span>
+            </button>
+          )}
         </div>
       </div>
 

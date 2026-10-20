@@ -83,7 +83,12 @@ async def inspect_pdf(
                 "date": c.date_str or "",
                 "comment_text": c.comment_text,
                 "annot_type": c.annot_type,
-                "render_mode": c.render_mode,
+                "target_x0": c.target_x0,
+                "target_y0": c.target_y0,
+                "target_x1": c.target_x1,
+                "target_y1": c.target_y1,
+                "page_width": c.page_width,
+                "page_height": c.page_height,
                 "thumbnail": None,
             })
 

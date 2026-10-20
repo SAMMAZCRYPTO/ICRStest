@@ -28,6 +28,10 @@ class ExtractedComment:
     popup_text: str = ""
     target_y0: float = 0.0
     target_x0: float = 0.0
+    target_y1: float = 0.0
+    target_x1: float = 0.0
+    page_width: float = 0.0
+    page_height: float = 0.0
 
 
 def _parse_pdf_date(raw_date: Optional[str]) -> str:
@@ -71,6 +75,8 @@ def extract_pdf_annotations(
             if not raw_annots:
                 continue
 
+            pw = float(page.rect.width)
+            ph = float(page.rect.height)
             candidates = []
             empty_lines = []
 
@@ -136,12 +142,18 @@ def extract_pdf_annotations(
                             "author": author or "Reviewer",
                             "date_str": date_str,
                             "subj": subj,
+                            "page_width": pw,
+                            "page_height": ph,
                         })
                     else:
                         candidates.append({
                             "page_num": page_num,
                             "y0": target_rect.y0,
                             "x0": target_rect.x0,
+                            "y1": target_rect.y1,
+                            "x1": target_rect.x1,
+                            "page_width": pw,
+                            "page_height": ph,
                             "author": author or "Reviewer",
                             "date_str": date_str,
                             "comment_text": clean_text or f"[{subj or annot_type_name} Markup]",
@@ -173,6 +185,10 @@ def extract_pdf_annotations(
                         "page_num": page_num,
                         "y0": el["rect"].y0,
                         "x0": el["rect"].x0,
+                        "y1": el["rect"].y1,
+                        "x1": el["rect"].x1,
+                        "page_width": el.get("page_width", pw),
+                        "page_height": el.get("page_height", ph),
                         "author": el["author"],
                         "date_str": el["date_str"],
                         "comment_text": f"[{el['subj'] or el['type_name']} Markup]",
@@ -203,6 +219,10 @@ def extract_pdf_annotations(
                 popup_text=r["popup_text"],
                 target_y0=r["y0"],
                 target_x0=r["x0"],
+                target_y1=r.get("y1", r["y0"] + 25.0),
+                target_x1=r.get("x1", r["x0"] + 60.0),
+                page_width=r.get("page_width", 0.0),
+                page_height=r.get("page_height", 0.0),
             ))
 
     finally:
