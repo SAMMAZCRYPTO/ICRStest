@@ -67,8 +67,8 @@ async def inspect_pdf(
     pdf_bytes = await pdf_file.read()
     if len(pdf_bytes) == 0:
         raise HTTPException(status_code=400, detail="Uploaded PDF file is empty.")
-    if len(pdf_bytes) > 100 * 1024 * 1024:
-        raise HTTPException(status_code=413, detail="Uploaded PDF exceeds maximum 100MB size limit.")
+    if len(pdf_bytes) > 500 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Uploaded PDF exceeds maximum 500MB size limit.")
 
     try:
         import base64
@@ -114,8 +114,8 @@ async def inspect_excel(
     excel_bytes = await excel_file.read()
     if len(excel_bytes) == 0:
         raise HTTPException(status_code=400, detail="Uploaded Excel file is empty.")
-    if len(excel_bytes) > 50 * 1024 * 1024:
-        raise HTTPException(status_code=413, detail="Uploaded Excel template exceeds maximum 50MB size limit.")
+    if len(excel_bytes) > 100 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Uploaded Excel template exceeds maximum 100MB size limit.")
 
     try:
         import openpyxl
@@ -303,12 +303,12 @@ async def process_comment_resolution_sheet(
 
         if len(pdf_bytes) == 0:
             raise HTTPException(status_code=400, detail="Uploaded PDF file is empty.")
-        if len(pdf_bytes) > 100 * 1024 * 1024:
-            raise HTTPException(status_code=413, detail="Uploaded PDF exceeds maximum 100MB size limit.")
+        if len(pdf_bytes) > 500 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="Uploaded PDF exceeds maximum 500MB size limit.")
         if len(excel_bytes) == 0:
             raise HTTPException(status_code=400, detail="Uploaded Excel file is empty.")
-        if len(excel_bytes) > 50 * 1024 * 1024:
-            raise HTTPException(status_code=413, detail="Uploaded Excel template exceeds maximum 50MB size limit.")
+        if len(excel_bytes) > 100 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="Uploaded Excel template exceeds maximum 100MB size limit.")
 
         # 2. Extract annotations and bounded visual snapshots in RAM
         comments = extract_pdf_annotations(pdf_bytes, context_margin=40.0)

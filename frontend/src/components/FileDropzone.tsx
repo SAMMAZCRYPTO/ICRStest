@@ -52,8 +52,16 @@ export default function FileDropzone({
       alert("Please upload a valid .pdf file.");
       return;
     }
+    if (iconType === "pdf" && f.size > 500 * 1024 * 1024) {
+      alert("PDF drawing package exceeds the 500MB size limit.");
+      return;
+    }
     if (iconType === "excel" && !ext.endsWith(".xlsx") && !ext.endsWith(".xlsm")) {
       alert("Please upload a valid .xlsx or .xlsm file.");
+      return;
+    }
+    if (iconType === "excel" && f.size > 100 * 1024 * 1024) {
+      alert("Excel template exceeds the 100MB size limit.");
       return;
     }
     onFileSelect(f);
@@ -113,7 +121,7 @@ export default function FileDropzone({
               <span className="material-symbols-outlined text-[16px]">upload_file</span>
               Click to browse or drop {iconType === "pdf" ? ".pdf" : ".xlsx/.xlsm"}
             </span>
-            <span className="font-mono text-[11px] text-outline">RAM-only</span>
+            <span className="font-mono text-[11px] text-outline">Max {iconType === "pdf" ? "500MB" : "100MB"} · RAM-only</span>
           </div>
         </div>
       ) : (
