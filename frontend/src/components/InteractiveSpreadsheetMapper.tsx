@@ -1181,6 +1181,18 @@ export default function InteractiveSpreadsheetMapper({
             Modify Mappings
           </button>
 
+          {onOpenSplitReview && (
+            <button
+              type="button"
+              onClick={onOpenSplitReview}
+              className="px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary/90 text-on-primary font-bold text-xs transition-all shadow-sm hover:shadow flex items-center gap-1.5 cursor-pointer"
+              title="Open side-by-side split screen linking Excel comments to the PDF drawing"
+            >
+              <span className="material-symbols-outlined text-[17px]">splitscreen</span>
+              <span>Review</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={handleConfirm}
@@ -1190,11 +1202,11 @@ export default function InteractiveSpreadsheetMapper({
             {isProcessing ? (
               <>
                 <span className="material-symbols-outlined text-[18px] animate-spin">refresh</span>
-                <span>Generating Resolution Sheet...</span>
+                <span>Generating...</span>
               </>
             ) : (
               <>
-                <span>Accept Mapping & Generate Resolution Sheet (.xlsx)</span>
+                <span>Generate</span>
                 <span className="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">
                   arrow_forward
                 </span>
