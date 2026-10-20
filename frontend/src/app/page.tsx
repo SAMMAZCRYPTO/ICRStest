@@ -176,14 +176,31 @@ export default function Home() {
       <main className="w-full pt-16 flex-1 bg-surface">
         <div className="w-full px-margin-lg py-space-xl flex flex-col gap-space-2xl max-w-7xl mx-auto">
           {/* A. Hero Section Header */}
-          <div className="flex flex-col gap-space-xs text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
-              PDF comment to Comment resolution sheet automaticly.
-            </h1>
-            <p className="text-sm sm:text-base text-on-surface-variant max-w-3xl leading-relaxed">
-              Upload your annotated PDF drawings and corporate Excel CRS template. Confirm the
-              auto-detected cell anchors below before generating.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/30 pb-5">
+            <div className="flex flex-col gap-1.5 max-w-3xl">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                Enterprise Document Engineering
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight leading-snug">
+                PDF comment to Comment resolution sheet automatically.
+              </h1>
+              <p className="text-sm text-on-surface-variant leading-relaxed">
+                Upload your annotated PDF drawings and corporate Excel CRS template. Confirm the
+                auto-detected cell anchors below before generating.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-mono font-medium border border-outline-variant/50 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                v2.4 Stateless
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-tertiary-fixed/30 border border-tertiary/30 px-3 py-1 rounded-full font-medium shadow-2xs">
+                <span className="material-symbols-outlined text-[15px]">verified_user</span>
+                Zero Retention
+              </span>
+            </div>
           </div>
 
           {/* B. Error Notifications */}

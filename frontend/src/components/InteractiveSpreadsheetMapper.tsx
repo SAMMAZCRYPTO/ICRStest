@@ -598,279 +598,197 @@ export default function InteractiveSpreadsheetMapper({
   const stagedRowCount = pdfMarkups.length > 0 ? pdfMarkups.length : 18;
 
   return (
-    <div className="flex flex-col bg-surface-container-lowest rounded-xl shadow-md overflow-hidden border border-outline-variant/60">
+    <div className="flex flex-col gap-4">
       {/* =========================================================================
-          1. EXCEL APPLICATION TOOLBAR RIBBON (Matching design/code.html)
+          MAIN SPREADSHEET STUDIO CONTAINER
           ========================================================================= */}
-      <div className="flex flex-wrap items-center justify-between px-space-md py-space-xs bg-surface-container border-b border-outline-variant/40 gap-2">
-        <div className="flex items-center gap-space-md flex-wrap">
-          <div className="flex items-center gap-space-xs">
-            <span className="material-symbols-outlined text-tertiary text-[20px]">table_chart</span>
-            <span className="font-semibold text-[14px] text-on-surface truncate max-w-[280px]">
-              {excelFile.name}
-            </span>
+      <div className="flex flex-col bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/60">
+        {/* =========================================================================
+            1. CONSOLIDATED HORIZONTAL TOOLBAR HEADER
+            ========================================================================= */}
+        <div className="flex flex-wrap items-center justify-between px-4 py-2.5 bg-surface-container/70 backdrop-blur-sm border-b border-outline-variant/50 gap-3">
+          {/* Left: Workbook Telemetry & Detection Status */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                <span className="material-symbols-outlined text-[18px]">table_chart</span>
+              </span>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-xs text-slate-900 truncate max-w-[220px] sm:max-w-[320px]" title={excelFile.name}>
+                  {excelFile.name}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  Sheet: <strong className="text-slate-800 font-semibold">{selectedSheet}</strong>
+                </span>
+              </div>
+            </div>
+
+            <div className="h-5 w-px bg-outline-variant/50 hidden sm:block"></div>
+
+            {/* Auto-Detection Status Chip */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/50 text-[11px] font-mono text-slate-800 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span>Row {headerRowIdx + 1} Anchor</span>
+              <span className="text-outline-variant">•</span>
+              <span className="font-bold text-primary">{mappedColumnCount} Columns Mapped</span>
+            </div>
           </div>
 
-          {/* View Mode Toggle: Actual Template vs Live Preview */}
-          <div className="flex items-center bg-surface-container-high p-0.5 rounded-lg border border-outline-variant/60 shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setViewMode("template")}
-              className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
-                viewMode === "template"
-                  ? "bg-surface-container-lowest text-primary shadow-2xs font-bold"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-              title="Displays the exact template uploaded with real cell values, colors, and formatting"
+          {/* Right: Consolidated Controls (Segmented View Controller + Text Mode Pill) */}
+          <div className="flex items-center gap-2.5">
+            {/* Segmented View Mode Tabs */}
+            <div className="inline-flex items-center bg-surface-container-high/80 p-0.5 rounded-lg border border-outline-variant/60 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setViewMode("preview")}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === "preview"
+                    ? "bg-surface-container-lowest text-tertiary shadow-2xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Displays a preview of how PDF markups are injected into your template"
+              >
+                <span className="material-symbols-outlined text-[15px]">preview</span>
+                <span>Live Preview</span>
+                {pdfMarkups.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-tertiary-fixed text-on-tertiary-fixed font-bold">
+                    {pdfMarkups.length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewMode("template")}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === "template"
+                    ? "bg-surface-container-lowest text-primary shadow-2xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Displays original raw template values without markup injection"
+              >
+                <span className="material-symbols-outlined text-[15px]">table_view</span>
+                <span>Template Format</span>
+              </button>
+            </div>
+
+            {/* Text-Only Mode Badge */}
+            <div
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-semibold select-none shadow-2xs"
+              title="Extraction running in high-speed Text-Only Mode"
             >
-              <span className="material-symbols-outlined text-[15px]">table_view</span>
-              <span>Actual Template Format</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("preview")}
-              className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
-                viewMode === "preview"
-                  ? "bg-surface-container-lowest text-tertiary shadow-2xs font-bold"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-              title="Displays a preview of how PDF markups will be mapped into the template columns"
-            >
-              <span className="material-symbols-outlined text-[15px]">preview</span>
-              <span>Live Markup Preview</span>
-            </button>
-          </div>
-
-          <span className="text-outline-variant hidden sm:inline">|</span>
-
-          <div className="flex items-center gap-space-xs text-on-surface-variant font-mono text-xs">
-            <span className="material-symbols-outlined text-[16px] text-tertiary">auto_fix_high</span>
-            <span className="text-on-surface font-medium">Auto-Detection:</span>
-            <span>
-              {mappedColumnCount} Columns Anchored to Row {headerRowIdx + 1}
-            </span>
+              <span className="material-symbols-outlined text-[14px] text-emerald-700">text_fields</span>
+              <span>Text-Only Mode</span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-space-sm">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-[12px] text-emerald-800 dark:text-emerald-300 font-medium">
-            <span className="material-symbols-outlined text-[15px] text-emerald-600">text_fields</span>
-            <span>Text-Only Mode</span>
+        {/* =========================================================================
+            2. PRECISION FORMULA BAR (Interactive Excel Telemetry)
+            ========================================================================= */}
+        <div className="flex items-center px-4 py-1.5 bg-surface-container-low/70 border-b border-outline-variant/40 gap-2.5 text-xs font-mono">
+          <div className="px-2.5 py-0.5 bg-surface-container-lowest border border-outline-variant/70 font-bold text-slate-800 text-center min-w-[56px] rounded shadow-2xs">
+            {activeCell.addr}
+          </div>
+          <div className="text-outline font-bold select-none text-[13px] italic">fx</div>
+          <div className="flex-1 bg-surface-container-lowest border border-outline-variant/60 px-3 py-1 text-slate-800 truncate rounded shadow-2xs text-xs font-normal">
+            {activeCellDisplay.val || <span className="text-slate-400 italic">(Empty Cell)</span>}
+          </div>
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-slate-700 text-[11px] border border-outline-variant/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+            <span className="truncate max-w-[220px] font-medium">{activeCellDisplay.role}</span>
           </div>
         </div>
-      </div>
 
-      {/* =========================================================================
-          2. FORMULA BAR (Interactive Excel Telemetry)
-          ========================================================================= */}
-      <div className="flex items-center px-space-md py-1 bg-surface-container-low border-b border-outline-variant/40 gap-space-sm text-[12px] font-mono">
-        <div className="px-2 py-0.5 bg-surface-container-lowest border border-outline-variant/60 font-semibold text-on-surface text-center min-w-[56px] rounded shadow-2xs">
-          {activeCell.addr}
-        </div>
-        <div className="text-outline font-semibold select-none">fx</div>
-        <div className="flex-1 bg-surface-container-lowest border border-outline-variant/50 px-2.5 py-0.5 text-on-surface truncate rounded shadow-2xs">
-          {activeCellDisplay.val || "(Empty Cell)"}
-        </div>
-        <div className="flex items-center gap-2 text-on-surface-variant text-[11px]">
-          <span className="w-2 h-2 rounded-full bg-tertiary"></span>
-          <span>{activeCellDisplay.role}</span>
-        </div>
-      </div>
+        {/* =========================================================================
+            3. BOUNDED EXCEL GRID CANVAS CONTAINER
+            ========================================================================= */}
+        <div
+          id="excel-grid-canvas-container"
+          className="w-full overflow-x-auto overflow-y-auto bg-surface border-b border-outline-variant/60 select-none max-h-[520px] relative scroll-smooth"
+        >
+          <table className="w-full border-collapse text-xs font-sans min-w-[1250px]">
+            {/* A. Excel Column Letter Bar */}
+            <thead>
+              <tr className="bg-surface-container-high text-slate-600 font-mono text-center border-b border-outline-variant/60 sticky top-0 z-30 h-7">
+                <th className="w-12 min-w-[48px] py-1 px-1 bg-surface-container border-r border-outline-variant/60 font-semibold text-[11px] text-slate-500"></th>
+                {colLetters.map((col) => (
+                  <th key={col} className="min-w-[120px] py-1 px-2 border-r border-outline-variant/60 font-semibold text-[11px] text-slate-700">
+                    {col}
+                  </th>
+                ))}
+              </tr>
 
-      {/* =========================================================================
-          3. EXCEL GRID CANVAS CONTAINER
-          ========================================================================= */}
-      <div
-        id="excel-grid-canvas-container"
-        className="w-full overflow-x-auto overflow-y-auto bg-surface border-b border-outline-variant/60 select-none max-h-[640px]"
-      >
-        <table className="w-full border-collapse text-[12px] font-sans min-w-[1250px]">
-          {/* A. Excel Column Letter Bar */}
-          <thead>
-            <tr className="bg-surface-container-high text-on-surface-variant font-mono text-center border-b border-outline-variant/60 sticky top-0 z-30">
-              <th className="w-12 py-1 px-1 bg-surface-container border-r border-outline-variant/60 font-medium text-[11px] text-on-surface-variant"></th>
-              {colLetters.map((col) => (
-                <th key={col} className="min-w-[110px] py-1 px-2 border-r border-outline-variant/60 font-medium text-[11px]">
-                  {col}
-                </th>
-              ))}
-            </tr>
+              {/* B. AI MAPPING PILL ROW (Interactive Overheads directly on columns) */}
+              <tr className="bg-tertiary-fixed/20 border-b border-tertiary/30 sticky top-[28px] z-20 h-9">
+                <td className="bg-surface-container-high text-center font-mono text-[10px] text-tertiary font-bold border-r border-outline-variant/60 py-1">
+                  MAP
+                </td>
+                {colLetters.map((col) => {
+                  const assignedKey = colToField[col];
+                  const isMapped = Boolean(assignedKey && assignedKey !== "none");
+                  const currentField = SPREADSHEET_FIELDS.find((f) => f.key === assignedKey);
 
-            {/* B. AI MAPPING PILL ROW (Interactive Overheads directly on columns) */}
-            <tr className="bg-tertiary-fixed/30 border-b border-tertiary/30 sticky top-[25px] z-20">
-              <td className="bg-surface-container-high text-center font-mono text-[10px] text-tertiary font-bold border-r border-outline-variant/60 py-1.5">
-                MAP
-              </td>
-              {colLetters.map((col) => {
-                const assignedKey = colToField[col];
-                const isMapped = Boolean(assignedKey && assignedKey !== "none");
-                const currentField = SPREADSHEET_FIELDS.find((f) => f.key === assignedKey);
-
-                return (
-                  <td key={`map-${col}`} className="p-1 border-r border-tertiary/30 text-center">
-                    <div
-                      className={`rounded shadow-xs px-1.5 py-0.5 flex items-center justify-between gap-1 text-[10px] font-semibold transition-all ${
-                        isMapped
-                          ? "bg-white border border-tertiary text-tertiary"
-                          : "bg-surface-container-low border border-outline-variant/60 text-on-surface-variant"
-                      }`}
-                    >
-                      <select
-                        value={assignedKey || "none"}
-                        onChange={(e) => assignFieldToCol(col, e.target.value)}
-                        className="bg-transparent w-full text-[10px] font-semibold focus:outline-none cursor-pointer truncate"
+                  return (
+                    <td key={`map-${col}`} className="p-1 border-r border-tertiary/30 text-center">
+                      <div
+                        className={`rounded-md shadow-2xs px-2 py-0.5 flex items-center justify-between gap-1 text-[11px] font-semibold transition-all ${
+                          isMapped
+                            ? "bg-white border-2 border-primary text-primary"
+                            : "bg-surface-container-low border border-outline-variant/70 text-slate-700"
+                        }`}
                       >
-                        {SPREADSHEET_FIELDS.map((f) => (
-                          <option key={f.key} value={f.key} className="text-on-surface bg-white text-left">
-                            {f.label}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="material-symbols-outlined text-[12px] shrink-0 pointer-events-none">
-                        expand_more
-                      </span>
-                    </div>
-                  </td>
-                );
-              })}
-            </tr>
-          </thead>
-
-          {/* C. Spreadsheet Rows */}
-          <tbody>
-            {Array.from({ length: totalRows }).map((_, rIdx) => {
-              const isHeaderRow = rIdx === headerRowIdx;
-              const isTitleBlockRow = rIdx < headerRowIdx;
-              const isDataRow = rIdx > headerRowIdx;
-
-              // Row 1-10: Title Block Rendering (faithfully renders user's Excel)
-              if (isTitleBlockRow) {
-                return (
-                  <tr
-                    key={`row-${rIdx}`}
-                    className="border-b border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container-low/50 transition-colors"
-                  >
-                    <td className="bg-surface-container-high text-center font-mono text-[11px] text-on-surface-variant border-r border-outline-variant/60 py-1">
-                      {rIdx + 1}
-                    </td>
-
-                    {colLetters.map((col, cIdx) => {
-                      const cellKey = `${rIdx}_${cIdx}`;
-                      if (hiddenCells.has(cellKey)) {
-                        return null; // Merged into previous cell
-                      }
-
-                      const merge = mergeMap.get(cellKey);
-                      const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
-                      const cell = ws[addr];
-                      const inspectedCell = inspectedData?.rows?.[rIdx]?.[cIdx];
-                      const val = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
-
-                      const isSelected = activeCell.addr === addr;
-
-                      const cellStyle: React.CSSProperties = {};
-                      if (inspectedCell?.bg_color) cellStyle.backgroundColor = inspectedCell.bg_color;
-                      if (inspectedCell?.font_color) cellStyle.color = inspectedCell.font_color;
-                      if (inspectedCell?.bold) cellStyle.fontWeight = "bold";
-                      if (inspectedCell?.italic) cellStyle.fontStyle = "italic";
-                      if (inspectedCell?.align_h) cellStyle.textAlign = inspectedCell.align_h as any;
-
-                      return (
-                        <td
-                          key={cellKey}
-                          rowSpan={merge?.rowSpan}
-                          colSpan={merge?.colSpan}
-                          onClick={() => setActiveCell({ r: rIdx, c: cIdx, addr })}
-                          style={cellStyle}
-                          className={`p-1.5 border-r border-outline-variant/60 align-middle text-on-surface text-[11px] cursor-pointer transition-colors ${
-                            isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/40" : ""
-                          } ${merge && merge.colSpan > 2 && rIdx === 0 && !inspectedCell?.bg_color ? "font-bold text-[13px] bg-surface-container-low" : ""}`}
+                        <select
+                          value={assignedKey || "none"}
+                          onChange={(e) => assignFieldToCol(col, e.target.value)}
+                          className="bg-transparent w-full text-[11px] font-semibold focus:outline-none cursor-pointer truncate"
                         >
-                          <div className="truncate max-w-[420px]" title={val}>
-                            {val}
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              }
-
-              // Row: Detected Corporate Table Header Row
-              if (isHeaderRow) {
-                return (
-                  <tr
-                    key={`header-row-${rIdx}`}
-                    className="font-semibold text-[11px] border-b-2 border-primary sticky top-[54px] z-10 shadow-sm"
-                  >
-                    <td className="bg-surface-container-high text-center font-mono text-[11px] text-on-surface font-bold border-r border-outline-variant/60 py-2">
-                      <div className="flex flex-col items-center justify-center leading-none">
-                        <span>{rIdx + 1}</span>
+                          {SPREADSHEET_FIELDS.map((f) => (
+                            <option key={f.key} value={f.key} className="text-slate-900 bg-white text-left font-normal">
+                              {f.label}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined text-[14px] shrink-0 pointer-events-none text-slate-500">
+                          expand_more
+                        </span>
                       </div>
                     </td>
+                  );
+                })}
+              </tr>
+            </thead>
 
-                    {colLetters.map((col, cIdx) => {
-                      const cellKey = `${rIdx}_${cIdx}`;
-                      if (hiddenCells.has(cellKey)) return null;
+            {/* C. Spreadsheet Rows */}
+            <tbody>
+              {Array.from({ length: totalRows }).map((_, rIdx) => {
+                const isHeaderRow = rIdx === headerRowIdx;
+                const isTitleBlockRow = rIdx < headerRowIdx;
+                const isDataRow = rIdx > headerRowIdx;
 
-                      const merge = mergeMap.get(cellKey);
-                      const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
-                      const cell = ws[addr];
-                      const inspectedCell = inspectedData?.rows?.[rIdx]?.[cIdx];
-                      const val = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
-                      const isSelected = activeCell.addr === addr;
-                      const assignedKey = colToField[col];
-
-                      const headerBg = inspectedCell?.bg_color || "#003ea8";
-                      const headerFg = inspectedCell?.font_color || "#ffffff";
-
-                      return (
-                        <td
-                          key={`hdr-${col}`}
-                          rowSpan={merge?.rowSpan}
-                          colSpan={merge?.colSpan}
-                          onClick={() => setActiveCell({ r: rIdx, c: cIdx, addr })}
-                          style={{ backgroundColor: headerBg, color: headerFg }}
-                          className={`px-2 py-2 border-r border-white/20 truncate cursor-pointer transition-colors ${
-                            isSelected ? "ring-2 ring-white ring-inset opacity-90" : ""
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="truncate">{val || `(Col ${col})`}</span>
-                            {assignedKey && (
-                              <span className="text-[9px] font-bold px-1 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed shrink-0">
-                                ✓
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              }
-
-              // Data Rows: Render Actual Template Format OR Live Markup Preview
-              if (isDataRow) {
-                // Mode 1: ACTUAL TEMPLATE FORMAT (Displays user's real Excel template without mock replacement)
-                if (viewMode === "template") {
+                // Row 1-10: Title Block Rendering (faithfully renders user's Excel)
+                if (isTitleBlockRow) {
                   return (
                     <tr
-                      key={`data-${rIdx}`}
-                      className="border-b border-outline-variant/40 hover:bg-surface-container-low/50 transition-colors"
+                      key={`row-${rIdx}`}
+                      className="border-b border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container-low/50 transition-colors"
                     >
-                      <td className="bg-surface-container-high text-center font-mono text-[11px] text-on-surface-variant border-r border-outline-variant/60 py-1.5">
+                      <td className="bg-surface-container-high text-center font-mono text-[11px] text-slate-600 border-r border-outline-variant/60 py-1 font-semibold">
                         {rIdx + 1}
                       </td>
+
                       {colLetters.map((col, cIdx) => {
                         const cellKey = `${rIdx}_${cIdx}`;
-                        if (hiddenCells.has(cellKey)) return null;
+                        if (hiddenCells.has(cellKey)) {
+                          return null; // Merged into previous cell
+                        }
 
                         const merge = mergeMap.get(cellKey);
                         const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
                         const cell = ws[addr];
                         const inspectedCell = inspectedData?.rows?.[rIdx]?.[cIdx];
                         const val = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
+
                         const isSelected = activeCell.addr === addr;
 
                         const cellStyle: React.CSSProperties = {};
@@ -887,12 +805,12 @@ export default function InteractiveSpreadsheetMapper({
                             colSpan={merge?.colSpan}
                             onClick={() => setActiveCell({ r: rIdx, c: cIdx, addr })}
                             style={cellStyle}
-                            className={`p-1.5 border-r border-outline-variant/60 align-top text-on-surface text-[11px] cursor-pointer transition-colors ${
-                              isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/40" : ""
-                            }`}
+                            className={`p-2 border-r border-outline-variant/50 align-middle text-slate-800 text-xs cursor-pointer transition-colors ${
+                              isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/50" : ""
+                            } ${merge && merge.colSpan > 2 && rIdx === 0 && !inspectedCell?.bg_color ? "font-bold text-sm bg-surface-container-low" : ""}`}
                           >
                             <div className="truncate max-w-[420px]" title={val}>
-                              {val || <span className="text-outline-variant/30 select-none">&nbsp;</span>}
+                              {val}
                             </div>
                           </td>
                         );
@@ -901,82 +819,53 @@ export default function InteractiveSpreadsheetMapper({
                   );
                 }
 
-                // Mode 2: LIVE MARKUP PREVIEW (Shows how annotations map into data rows)
-                const relativeDataIdx = rIdx - headerRowIdx - 1;
-                const stagedList: PDFMarkupPreview[] = pdfMarkups;
-
-                if (stagedList.length > 0 && relativeDataIdx < stagedList.length) {
-                  const markup = stagedList[relativeDataIdx];
-                  const itemTag = String(markup.item_no);
-
+                // Row: Detected Corporate Table Header Row
+                if (isHeaderRow) {
                   return (
                     <tr
-                      key={`preview-${rIdx}`}
-                      className="border-b border-outline-variant/40 bg-white hover:bg-surface-container-low transition-colors"
+                      key={`header-row-${rIdx}`}
+                      className="font-semibold text-xs border-b-2 border-primary sticky top-[64px] z-10 shadow-sm"
                     >
-                      <td className="bg-surface-container-high text-center font-mono text-[11px] text-on-surface-variant border-r border-outline-variant/60 py-2">
-                        {rIdx + 1}
+                      <td className="bg-slate-200 text-center font-mono text-xs text-slate-900 font-bold border-r border-outline-variant/60 py-2">
+                        <div className="flex flex-col items-center justify-center leading-none">
+                          <span>{rIdx + 1}</span>
+                        </div>
                       </td>
 
                       {colLetters.map((col, cIdx) => {
+                        const cellKey = `${rIdx}_${cIdx}`;
+                        if (hiddenCells.has(cellKey)) return null;
+
+                        const merge = mergeMap.get(cellKey);
                         const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
-                        const assignedKey = colToField[col];
-                        const isSelected = activeCell.addr === addr;
                         const cell = ws[addr];
                         const inspectedCell = inspectedData?.rows?.[rIdx]?.[cIdx];
+                        const val = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
+                        const isSelected = activeCell.addr === addr;
+                        const assignedKey = colToField[col];
 
-                        let content: React.ReactNode = "";
-
-                        if (assignedKey === "item_no") {
-                          content = <span className="font-mono font-semibold text-primary">{itemTag}</span>;
-                        } else if (assignedKey === "page_num") {
-                          content = (
-                            <div className="font-mono text-[11px] text-center">
-                              <span>Page {markup.page_num}</span>
-                            </div>
-                          );
-                        } else if (assignedKey === "comment_text") {
-                          content = (
-                            <div className="text-on-surface leading-relaxed max-w-[600px] min-w-[280px]">
-                              <span className="font-medium text-on-surface whitespace-pre-wrap select-text">{markup.comment_text}</span>
-                            </div>
-                          );
-                        } else if (assignedKey === "snapshot") {
-                          content = (
-                            <span className="italic text-outline text-[11px] bg-surface-container-low/50 px-1.5 py-0.5 rounded border border-outline-variant/40">
-                              [Text-Only Mode: Bypassed]
-                            </span>
-                          );
-                        } else if (assignedKey === "author") {
-                          content = <span className="text-on-surface font-medium text-[11px]">{markup.author}</span>;
-                        } else if (assignedKey === "date") {
-                          content = <span className="font-mono text-[11px] text-on-surface-variant">{markup.date}</span>;
-                        } else if (assignedKey === "contractor_response") {
-                          content = (
-                            <span className="italic text-outline-variant text-[11px]">
-                              [Pending Response]
-                            </span>
-                          );
-                        } else if (assignedKey === "status") {
-                          content = (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                              OPEN
-                            </span>
-                          );
-                        } else {
-                          // Render real cell from user's Excel template
-                          content = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
-                        }
+                        const headerBg = inspectedCell?.bg_color || "#003ea8";
+                        const headerFg = inspectedCell?.font_color || "#ffffff";
 
                         return (
                           <td
-                            key={addr}
+                            key={`hdr-${col}`}
+                            rowSpan={merge?.rowSpan}
+                            colSpan={merge?.colSpan}
                             onClick={() => setActiveCell({ r: rIdx, c: cIdx, addr })}
-                            className={`px-2.5 py-2 border-r border-outline-variant/60 align-top text-on-surface text-[11px] cursor-pointer ${
-                              isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/40" : ""
+                            style={{ backgroundColor: headerBg, color: headerFg }}
+                            className={`px-3 py-2 border-r border-white/20 truncate cursor-pointer transition-colors text-xs font-bold ${
+                              isSelected ? "ring-2 ring-white ring-inset opacity-95" : ""
                             }`}
                           >
-                            {content}
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className="truncate">{val || `(Col ${col})`}</span>
+                              {assignedKey && (
+                                <span className="text-[10px] font-extrabold px-1.5 py-0.2 rounded bg-tertiary-fixed text-on-tertiary-fixed shrink-0">
+                                  ✓
+                                </span>
+                              )}
+                            </div>
                           </td>
                         );
                       })}
@@ -984,146 +873,302 @@ export default function InteractiveSpreadsheetMapper({
                   );
                 }
 
-                // Beyond staged rows in preview mode: show shifted footer cells if available
-                const templateDataStart = headerRowIdx + 1;
-                const origRowIdx = templateDataStart + (relativeDataIdx - stagedList.length);
-                const hasTemplateRow = Boolean(inspectedData?.rows && origRowIdx < inspectedData.rows.length);
-                const sourceRowIdx = (stagedList.length > 0 && hasTemplateRow) ? origRowIdx : rIdx;
-
-                return (
-                  <tr
-                    key={`template-rest-${rIdx}`}
-                    className="border-b border-outline-variant/40 hover:bg-surface-container-low/50 transition-colors"
-                  >
-                    <td className="bg-surface-container-high text-center font-mono text-[11px] text-on-surface-variant border-r border-outline-variant/60 py-1.5">
-                      {rIdx + 1}
-                    </td>
-                    {colLetters.map((col, cIdx) => {
-                      const cellKey = `${sourceRowIdx}_${cIdx}`;
-                      if (hiddenCells.has(cellKey)) return null;
-
-                      const merge = mergeMap.get(cellKey);
-                      const addr = XLSX.utils.encode_cell({ r: sourceRowIdx, c: cIdx });
-                      const cell = ws[addr];
-                      const inspectedCell = inspectedData?.rows?.[sourceRowIdx]?.[cIdx];
-                      const val = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
-                      const isSelected = activeCell.addr === addr;
-
-                      const cellStyle: React.CSSProperties = {};
-                      if (inspectedCell?.bg_color) cellStyle.backgroundColor = inspectedCell.bg_color;
-                      if (inspectedCell?.font_color) cellStyle.color = inspectedCell.font_color;
-                      if (inspectedCell?.bold) cellStyle.fontWeight = "bold";
-                      if (inspectedCell?.italic) cellStyle.fontStyle = "italic";
-                      if (inspectedCell?.align_h) cellStyle.textAlign = inspectedCell.align_h as any;
-
-                      return (
-                        <td
-                          key={cellKey}
-                          rowSpan={merge?.rowSpan}
-                          colSpan={merge?.colSpan}
-                          onClick={() => setActiveCell({ r: sourceRowIdx, c: cIdx, addr })}
-                          style={cellStyle}
-                          className={`p-1.5 border-r border-outline-variant/60 align-top text-on-surface text-[11px] cursor-pointer transition-colors ${
-                            isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/40" : ""
-                          }`}
-                        >
-                          <div className="truncate max-w-[420px]" title={val}>
-                            {val || <span className="text-outline-variant/30 select-none">&nbsp;</span>}
-                          </div>
+                // Data Rows: Render Actual Template Format OR Live Markup Preview
+                if (isDataRow) {
+                  // Mode 1: ACTUAL TEMPLATE FORMAT
+                  if (viewMode === "template") {
+                    return (
+                      <tr
+                        key={`data-${rIdx}`}
+                        className="border-b border-outline-variant/40 hover:bg-surface-container-low/50 transition-colors"
+                      >
+                        <td className="bg-surface-container-high text-center font-mono text-[11px] text-slate-600 border-r border-outline-variant/60 py-1.5 font-semibold">
+                          {rIdx + 1}
                         </td>
-                      );
-                    })}
-                  </tr>
-                );
-              }
+                        {colLetters.map((col, cIdx) => {
+                          const cellKey = `${rIdx}_${cIdx}`;
+                          if (hiddenCells.has(cellKey)) return null;
 
-              return null;
-            })}
-          </tbody>
-        </table>
-      </div>
+                          const merge = mergeMap.get(cellKey);
+                          const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
+                          const cell = ws[addr];
+                          const inspectedCell = inspectedData?.rows?.[rIdx]?.[cIdx];
+                          const val = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
+                          const isSelected = activeCell.addr === addr;
 
-      {/* =========================================================================
-          4. AUTHENTIC EXCEL SHEET NAVIGATION BAR (Sheet tabs at bottom)
-          ========================================================================= */}
-      <div className="px-space-md py-1.5 bg-surface-container-high flex flex-wrap items-center justify-between text-on-surface-variant font-mono text-xs border-t border-outline-variant/60 gap-2">
-        <div className="flex items-center gap-1 overflow-x-auto">
-          <button className="w-6 h-6 flex items-center justify-center hover:bg-surface-container rounded text-on-surface-variant">
-            <span className="material-symbols-outlined text-[16px]">first_page</span>
-          </button>
-          <button className="w-6 h-6 flex items-center justify-center hover:bg-surface-container rounded text-on-surface-variant">
-            <span className="material-symbols-outlined text-[16px]">chevron_left</span>
-          </button>
-          <button className="w-6 h-6 flex items-center justify-center hover:bg-surface-container rounded text-on-surface-variant">
-            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-          </button>
-          <button className="w-6 h-6 flex items-center justify-center hover:bg-surface-container rounded text-on-surface-variant">
-            <span className="material-symbols-outlined text-[16px]">last_page</span>
-          </button>
+                          const cellStyle: React.CSSProperties = {};
+                          if (inspectedCell?.bg_color) cellStyle.backgroundColor = inspectedCell.bg_color;
+                          if (inspectedCell?.font_color) cellStyle.color = inspectedCell.font_color;
+                          if (inspectedCell?.bold) cellStyle.fontWeight = "bold";
+                          if (inspectedCell?.italic) cellStyle.fontStyle = "italic";
+                          if (inspectedCell?.align_h) cellStyle.textAlign = inspectedCell.align_h as any;
 
-          <div className="h-4 w-px bg-outline-variant/60 mx-1"></div>
+                          return (
+                            <td
+                              key={cellKey}
+                              rowSpan={merge?.rowSpan}
+                              colSpan={merge?.colSpan}
+                              onClick={() => setActiveCell({ r: rIdx, c: cIdx, addr })}
+                              style={cellStyle}
+                              className={`p-2 border-r border-outline-variant/50 align-top text-slate-800 text-xs cursor-pointer transition-colors ${
+                                isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/50" : ""
+                              }`}
+                            >
+                              <div className="truncate max-w-[420px]" title={val}>
+                                {val || <span className="text-slate-300 select-none">&nbsp;</span>}
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  }
 
-          {sheetNames.map((s) => {
-            const isActive = s === selectedSheet;
-            return (
+                  // Mode 2: LIVE MARKUP PREVIEW
+                  const relativeDataIdx = rIdx - headerRowIdx - 1;
+                  const stagedList: PDFMarkupPreview[] = pdfMarkups;
+
+                  if (stagedList.length > 0 && relativeDataIdx < stagedList.length) {
+                    const markup = stagedList[relativeDataIdx];
+                    const itemTag = String(markup.item_no);
+
+                    return (
+                      <tr
+                        key={`preview-${rIdx}`}
+                        className="border-b border-outline-variant/40 bg-white hover:bg-surface-container-low transition-colors"
+                      >
+                        <td className="bg-surface-container-high text-center font-mono text-[11px] text-slate-600 border-r border-outline-variant/60 py-2 font-semibold">
+                          {rIdx + 1}
+                        </td>
+
+                        {colLetters.map((col, cIdx) => {
+                          const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
+                          const assignedKey = colToField[col];
+                          const isSelected = activeCell.addr === addr;
+                          const cell = ws[addr];
+                          const inspectedCell = inspectedData?.rows?.[rIdx]?.[cIdx];
+
+                          let content: React.ReactNode = "";
+
+                          if (assignedKey === "item_no") {
+                            content = <span className="font-mono font-bold text-primary text-xs">{itemTag}</span>;
+                          } else if (assignedKey === "page_num") {
+                            content = (
+                              <div className="font-mono text-xs text-center">
+                                <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 font-medium">
+                                  p. {markup.page_num}
+                                </span>
+                              </div>
+                            );
+                          } else if (assignedKey === "comment_text") {
+                            content = (
+                              <div className="text-slate-900 leading-relaxed max-w-[550px] min-w-[280px]">
+                                <span className="font-normal text-xs whitespace-pre-wrap select-text">{markup.comment_text}</span>
+                              </div>
+                            );
+                          } else if (assignedKey === "snapshot") {
+                            content = (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-700 border border-zinc-300">
+                                Text-Only
+                              </span>
+                            );
+                          } else if (assignedKey === "author") {
+                            content = <span className="text-slate-800 font-semibold text-xs">{markup.author}</span>;
+                          } else if (assignedKey === "date") {
+                            content = <span className="font-mono text-xs text-slate-600 font-medium">{markup.date}</span>;
+                          } else if (assignedKey === "contractor_response") {
+                            content = (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-300">
+                                Pending Response
+                              </span>
+                            );
+                          } else if (assignedKey === "status") {
+                            content = (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                                OPEN
+                              </span>
+                            );
+                          } else {
+                            // Render real cell from user's Excel template
+                            content = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
+                          }
+
+                          return (
+                            <td
+                              key={addr}
+                              onClick={() => setActiveCell({ r: rIdx, c: cIdx, addr })}
+                              className={`px-3 py-2 border-r border-outline-variant/60 align-top text-slate-800 text-xs cursor-pointer ${
+                                isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/50" : ""
+                              }`}
+                            >
+                              {content}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  }
+
+                  // Beyond staged rows in preview mode: show shifted footer cells if available
+                  const templateDataStart = headerRowIdx + 1;
+                  const origRowIdx = templateDataStart + (relativeDataIdx - stagedList.length);
+                  const hasTemplateRow = Boolean(inspectedData?.rows && origRowIdx < inspectedData.rows.length);
+                  const sourceRowIdx = (stagedList.length > 0 && hasTemplateRow) ? origRowIdx : rIdx;
+
+                  return (
+                    <tr
+                      key={`template-rest-${rIdx}`}
+                      className="border-b border-outline-variant/40 hover:bg-surface-container-low/50 transition-colors"
+                    >
+                      <td className="bg-surface-container-high text-center font-mono text-[11px] text-slate-600 border-r border-outline-variant/60 py-1.5 font-semibold">
+                        {rIdx + 1}
+                      </td>
+                      {colLetters.map((col, cIdx) => {
+                        const cellKey = `${sourceRowIdx}_${cIdx}`;
+                        if (hiddenCells.has(cellKey)) return null;
+
+                        const merge = mergeMap.get(cellKey);
+                        const addr = XLSX.utils.encode_cell({ r: sourceRowIdx, c: cIdx });
+                        const cell = ws[addr];
+                        const inspectedCell = inspectedData?.rows?.[sourceRowIdx]?.[cIdx];
+                        const val = inspectedCell?.value ?? (cell?.w ?? (cell?.v !== undefined ? String(cell.v) : ""));
+                        const isSelected = activeCell.addr === addr;
+
+                        const cellStyle: React.CSSProperties = {};
+                        if (inspectedCell?.bg_color) cellStyle.backgroundColor = inspectedCell.bg_color;
+                        if (inspectedCell?.font_color) cellStyle.color = inspectedCell.font_color;
+                        if (inspectedCell?.bold) cellStyle.fontWeight = "bold";
+                        if (inspectedCell?.italic) cellStyle.fontStyle = "italic";
+                        if (inspectedCell?.align_h) cellStyle.textAlign = inspectedCell.align_h as any;
+
+                        return (
+                          <td
+                            key={cellKey}
+                            rowSpan={merge?.rowSpan}
+                            colSpan={merge?.colSpan}
+                            onClick={() => setActiveCell({ r: sourceRowIdx, c: cIdx, addr })}
+                            style={cellStyle}
+                            className={`p-2 border-r border-outline-variant/50 align-top text-slate-800 text-xs cursor-pointer transition-colors ${
+                              isSelected ? "ring-2 ring-primary ring-inset bg-blue-50/50" : ""
+                            }`}
+                          >
+                            <div className="truncate max-w-[420px]" title={val}>
+                              {val || <span className="text-slate-300 select-none">&nbsp;</span>}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                }
+
+                return null;
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* =========================================================================
+            4. AUTHENTIC EXCEL SHEET NAVIGATION BAR (Sheet tabs at bottom)
+            ========================================================================= */}
+        <div className="px-4 py-2 bg-surface-container-high/90 flex flex-wrap items-center justify-between text-on-surface-variant font-mono text-xs border-t border-outline-variant/60 gap-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+            <div className="flex items-center bg-surface-container-lowest rounded-md border border-outline-variant/60 p-0.5 shadow-2xs">
               <button
-                key={s}
                 type="button"
-                onClick={() => handleSheetSwitch(s)}
-                className={`px-3 py-1 rounded-t flex items-center gap-1.5 transition-colors cursor-pointer text-xs ${
-                  isActive
-                    ? "bg-surface-container-lowest text-tertiary font-bold shadow-xs border-t-2 border-tertiary"
-                    : "hover:bg-surface-container text-on-surface-variant"
-                }`}
+                className="w-6 h-6 flex items-center justify-center hover:bg-surface-container-high rounded text-slate-700 transition-colors cursor-pointer"
+                title="First Sheet"
               >
-                <span className="material-symbols-outlined text-[14px]">
-                  {isActive ? "grid_on" : "article"}
-                </span>
-                <span>{s}</span>
+                <span className="material-symbols-outlined text-[16px]">first_page</span>
               </button>
-            );
-          })}
-        </div>
+              <button
+                type="button"
+                className="w-6 h-6 flex items-center justify-center hover:bg-surface-container-high rounded text-slate-700 transition-colors cursor-pointer"
+                title="Previous Sheet"
+              >
+                <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+              </button>
+              <button
+                type="button"
+                className="w-6 h-6 flex items-center justify-center hover:bg-surface-container-high rounded text-slate-700 transition-colors cursor-pointer"
+                title="Next Sheet"
+              >
+                <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+              </button>
+              <button
+                type="button"
+                className="w-6 h-6 flex items-center justify-center hover:bg-surface-container-high rounded text-slate-700 transition-colors cursor-pointer"
+                title="Last Sheet"
+              >
+                <span className="material-symbols-outlined text-[16px]">last_page</span>
+              </button>
+            </div>
 
-        <div className="flex items-center gap-space-md text-[11px] flex-wrap">
-          <span className="font-medium text-on-surface">
-            <strong className="font-bold">Row {headerRowIdx + 1}:</strong> Corporate Header Anchor
-          </span>
-          <span className="text-outline-variant">•</span>
-          <span>
-            <strong className="font-bold">{stagedRowCount} Rows</strong> Staged for Injection
-          </span>
-          <span className="text-outline-variant">•</span>
-          <span className="text-tertiary font-semibold flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
-            100% In-Memory Parsing
-          </span>
+            <div className="h-5 w-px bg-outline-variant/60 mx-1"></div>
+
+            {sheetNames.map((s) => {
+              const isActive = s === selectedSheet;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => handleSheetSwitch(s)}
+                  className={`px-3 py-1.5 rounded-t-md flex items-center gap-1.5 transition-colors cursor-pointer text-xs font-semibold ${
+                    isActive
+                      ? "bg-surface-container-lowest text-primary shadow-xs border-t-2 border-primary"
+                      : "hover:bg-surface-container text-slate-600 bg-surface-container-low/60"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px]">
+                    {isActive ? "grid_on" : "article"}
+                  </span>
+                  <span>{s}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] flex-wrap">
+            <span className="font-medium text-slate-700">
+              <strong className="font-bold text-slate-900">Row {headerRowIdx + 1}:</strong> Header Anchor
+            </span>
+            <span className="text-outline-variant">•</span>
+            <span className="text-slate-700">
+              <strong className="font-bold text-slate-900">{stagedRowCount} Rows</strong> Staged
+            </span>
+            <span className="text-outline-variant">•</span>
+            <span className="text-tertiary font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+              100% In-Memory Parsing
+            </span>
+          </div>
         </div>
       </div>
 
       {/* =========================================================================
-          5. BOTTOM FLOATING ACTION BAR (Exact Match to design/code.html)
+          5. ELEVATED BOTTOM ACTION CARD (Decoupled to Prevent Overlap)
           ========================================================================= */}
-      <div className="w-full bg-surface-container-lowest border-t border-outline-variant/60 p-space-md shadow-xl flex flex-col md:flex-row items-center justify-between gap-space-md">
-        <div className="flex items-center gap-space-md">
+      <div className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-full bg-tertiary-fixed/60 flex items-center justify-center text-tertiary shrink-0">
             <span className="material-symbols-outlined text-[24px]">verified_user</span>
           </div>
           <div className="flex flex-col text-left">
-            <span className="font-semibold text-[15px] text-on-surface">
+            <span className="font-bold text-sm text-slate-900">
               Stateless In-Memory Injection Ready
             </span>
-            <span className="text-xs text-on-surface-variant">
+            <span className="text-xs text-slate-500">
               Corporate macros, locked title blocks, formula chains, and XML cell relationships 100% preserved.
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-space-md w-full md:w-auto justify-end">
+        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
           <button
             type="button"
             onClick={() => autoDetectHeadersAndMap(workbook!, selectedSheet)}
-            className="px-space-lg py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold text-xs transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-slate-800 font-semibold text-xs border border-outline-variant/50 transition-colors cursor-pointer"
           >
             Modify Mappings
           </button>
@@ -1132,7 +1177,7 @@ export default function InteractiveSpreadsheetMapper({
             <button
               type="button"
               onClick={() => onOpenSplitReview?.(getCurrentConfig())}
-              className="px-space-lg py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-all shadow-sm hover:shadow-md flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-all shadow-sm hover:shadow flex items-center gap-1.5 cursor-pointer"
               title="Open side-by-side split screen linking Excel comments to the PDF drawing"
             >
               <span className="material-symbols-outlined text-[17px]">splitscreen</span>
@@ -1144,7 +1189,7 @@ export default function InteractiveSpreadsheetMapper({
             type="button"
             onClick={handleConfirm}
             disabled={isProcessing}
-            className="px-space-xl py-2.5 rounded-lg bg-tertiary hover:bg-tertiary-container text-on-tertiary font-bold text-xs tracking-wide transition-all shadow-md hover:shadow-lg flex items-center gap-space-xs group cursor-pointer disabled:opacity-50"
+            className="px-6 py-2.5 rounded-lg bg-tertiary hover:bg-tertiary-container text-on-tertiary font-bold text-xs tracking-wide transition-all shadow-md hover:shadow-lg flex items-center gap-2 group cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
               <>
