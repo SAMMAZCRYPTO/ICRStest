@@ -245,8 +245,11 @@ export default function Home() {
                 handleProcess(cfg);
               }}
               isProcessing={isProcessing}
-              onActiveSheetChange={setActiveSheetName}
-              onOpenSplitReview={() => setIsSplitReviewOpen(true)}
+              onOpenSplitReview={(cfg) => {
+                if (cfg) setActiveMappingConfig(cfg);
+                setIsSplitReviewOpen(true);
+              }}
+              onConfigChange={setActiveMappingConfig}
             />
           ) : (
             /* Empty State Prompt when no Excel template is loaded */

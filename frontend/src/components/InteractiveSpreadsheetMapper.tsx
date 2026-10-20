@@ -28,7 +28,8 @@ interface InteractiveSpreadsheetMapperProps {
   onMappingConfirmed: (config: MappingConfig) => void;
   isProcessing: boolean;
   onActiveSheetChange?: (sheetName: string) => void;
-  onOpenSplitReview?: () => void;
+  onOpenSplitReview?: (config?: MappingConfig) => void;
+  onConfigChange?: (config: MappingConfig) => void;
 }
 
 // Available mapping roles matching corporate CRS workflows
@@ -55,6 +56,7 @@ export default function InteractiveSpreadsheetMapper({
   isProcessing,
   onActiveSheetChange,
   onOpenSplitReview,
+  onConfigChange,
 }: InteractiveSpreadsheetMapperProps) {
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
   const [sheetNames, setSheetNames] = useState<string[]>([]);
@@ -494,13 +496,8 @@ export default function InteractiveSpreadsheetMapper({
     return { val, role };
   }, [sheetParsedData, activeCell, headerRowIdx, colToField, inspectedData]);
 
-  const handleConfirm = () => {
-    if (!columnMapping["comment_text"]) {
-      alert("Please map the 'Reviewer Comment' field to a column in your sheet.");
-      return;
-    }
-
-    const config: MappingConfig = {
+  const getCurrentConfig = (): MappingConfig => {
+    return {
       sheet_name: selectedSheet,
       header_row: headerRowIdx + 1,
       data_start_row: headerRowIdx + 2,
@@ -509,11 +506,25 @@ export default function InteractiveSpreadsheetMapper({
         page_num: columnMapping["page_num"] || undefined,
         author: columnMapping["author"] || undefined,
         date: columnMapping["date"] || undefined,
-        comment_text: columnMapping["comment_text"],
+        comment_text: columnMapping["comment_text"] || "E",
         snapshot: columnMapping["snapshot"] || undefined,
       },
     };
+  };
 
+  useEffect(() => {
+    if (selectedSheet && columnMapping["comment_text"]) {
+      onConfigChange?.(getCurrentConfig());
+    }
+  }, [selectedSheet, headerRowIdx, columnMapping]);
+
+  const handleConfirm = () => {
+    if (!columnMapping["comment_text"]) {
+      alert("Please map the 'Reviewer Comment' field to a column in your sheet.");
+      return;
+    }
+
+    const config = getCurrentConfig();
     onMappingConfirmed(config);
   };
 
@@ -1120,7 +1131,7 @@ export default function InteractiveSpreadsheetMapper({
           {onOpenSplitReview && (
             <button
               type="button"
-              onClick={onOpenSplitReview}
+              onClick={() => onOpenSplitReview?.(getCurrentConfig())}
               className="px-space-lg py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-all shadow-sm hover:shadow-md flex items-center gap-1.5 cursor-pointer"
               title="Open side-by-side split screen linking Excel comments to the PDF drawing"
             >
