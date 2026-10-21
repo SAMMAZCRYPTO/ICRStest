@@ -48,7 +48,8 @@ EOF
 ln -sf /etc/nginx/sites-available/icrsstudio.com /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
-systemctl reload nginx
+systemctl restart nginx
+systemctl enable nginx
 
 # 4. Obtain Let's Encrypt SSL Certificate
 echo "=== Obtaining Free SSL Certificate via Certbot ==="
