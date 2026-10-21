@@ -53,6 +53,28 @@ def _bbox_distance(r1: pymupdf.Rect, r2: pymupdf.Rect) -> float:
     return (dx * dx + dy * dy) ** 0.5
 
 
+def _is_markup_color(color_int: int) -> bool:
+    """Detects whether text color matches reviewer markup inks (pure blue, red, magenta)."""
+    r = (color_int >> 16) & 255
+    g = (color_int >> 8) & 255
+    b = color_int & 255
+    # Pure / vibrant blue ink (RGB ~ 0, 0, 255)
+    if b > 180 and r < 90 and g < 100:
+        return True
+    # Pure / vibrant red ink (RGB ~ 255, 0, 0)
+    if r > 180 and g < 90 and b < 90:
+        return True
+    # Magenta / purple markup ink
+    if r > 180 and b > 180 and g < 100:
+        return True
+    return False
+
+
+def _clean_chars(s: str) -> str:
+    """Normalizes string to alphanumeric lower-case for robust matching."""
+    return re.sub(r"[^a-zA-Z0-9]", "", s.lower())
+
+
 def extract_pdf_annotations(
     pdf_bytes: bytes,
     context_margin: float = 40.0,
@@ -62,18 +84,32 @@ def extract_pdf_annotations(
     """
     Parses PDF annotations directly in RAM without writing to disk.
     Text-Only Mode: Extracts every reviewer comment, callout, sticky note, markup,
-    and highlighted text without generating or attaching image snippets.
+    highlighted text, and unannotated colored reviewer notes.
     Comments are naturally ordered by page, top-to-bottom, left-to-right.
     """
     doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
     raw_records = []
 
+    # First pass: collect document-level primary author and date
+    doc_authors = []
+    doc_dates = []
+    for page in doc:
+        for a in (page.annots() or []):
+            info = a.info or {}
+            auth = (info.get("title") or info.get("author") or info.get("name") or "").strip()
+            if auth and auth.lower() != "reviewer":
+                doc_authors.append(auth)
+            d = _parse_pdf_date(info.get("modDate") or info.get("creationDate"))
+            if d:
+                doc_dates.append(d)
+
+    primary_doc_author = doc_authors[0] if doc_authors else "Reviewer"
+    primary_doc_date = doc_dates[0] if doc_dates else ""
+
     try:
         for page_idx, page in enumerate(doc):
             page_num = page_idx + 1
-            raw_annots = page.annots()
-            if not raw_annots:
-                continue
+            raw_annots = list(page.annots() or [])
 
             pw = float(page.rect.width)
             ph = float(page.rect.height)
@@ -144,8 +180,8 @@ def extract_pdf_annotations(
                             "rect": target_rect,
                             "vis_rect": vis_rect,
                             "type_name": annot_type_name,
-                            "author": author or "Reviewer",
-                            "date_str": date_str,
+                            "author": author or primary_doc_author,
+                            "date_str": date_str or primary_doc_date,
                             "subj": subj,
                             "page_width": pw,
                             "page_height": ph,
@@ -159,8 +195,8 @@ def extract_pdf_annotations(
                             "x1": vis_rect.x1,
                             "page_width": pw,
                             "page_height": ph,
-                            "author": author or "Reviewer",
-                            "date_str": date_str,
+                            "author": author or primary_doc_author,
+                            "date_str": date_str or primary_doc_date,
                             "comment_text": clean_text or f"[{subj or annot_type_name} Markup]",
                             "annot_type": annot_type_name,
                             "has_popup_note": has_popup_note,
@@ -201,6 +237,105 @@ def extract_pdf_annotations(
                         "has_popup_note": False,
                         "popup_text": "",
                     })
+
+            # Check for unannotated reviewer markup text printed directly into page stream:
+            existing_clean_texts = [
+                _clean_chars(c.get("comment_text") or "")
+                for c in candidates
+                if c.get("comment_text")
+            ]
+            existing_clean_popups = [
+                _clean_chars(c.get("popup_text") or "")
+                for c in candidates
+                if c.get("popup_text")
+            ]
+            known_texts = [t for t in (existing_clean_texts + existing_clean_popups) if t]
+
+            # Determine dominant author and date on this page for unannotated notes
+            page_authors = [c["author"] for c in candidates if c.get("author") and c["author"] != "Reviewer"]
+            page_dates = [c["date_str"] for c in candidates if c.get("date_str")]
+            fallback_author = page_authors[0] if page_authors else primary_doc_author
+            fallback_date = page_dates[0] if page_dates else primary_doc_date
+
+            rot_m = page.rotation_matrix
+            d = page.get_text("dict")
+            unannotated_lines = []
+
+            for b in d.get("blocks", []):
+                if "lines" not in b:
+                    continue
+                for l in b["lines"]:
+                    text = " ".join(s["text"].strip() for s in l.get("spans", []) if s.get("text", "").strip())
+                    if not text:
+                        continue
+                    colors = [s.get("color", 0) for s in l.get("spans", [])]
+                    if any(_is_markup_color(c) for c in colors):
+                        c_clean = _clean_chars(text)
+                        if not c_clean:
+                            continue
+                        # Skip cover page title badges or single characters
+                        if page_num == 1 and len(c_clean) < 25:
+                            continue
+                        # If this text is already part of an existing annotation, skip
+                        if any(c_clean in kt for kt in known_texts):
+                            continue
+
+                        line_rect = pymupdf.Rect(l["bbox"])
+                        vis_rect = line_rect * rot_m
+                        unannotated_lines.append({
+                            "text": text,
+                            "vis_rect": vis_rect,
+                        })
+
+            if unannotated_lines:
+                # Sort in visual reading order (top to bottom, left to right)
+                unannotated_lines.sort(key=lambda m: (m["vis_rect"].y0, m["vis_rect"].x0))
+
+                clusters = []
+                curr_cluster = []
+                for ul in unannotated_lines:
+                    if not curr_cluster:
+                        curr_cluster.append(ul)
+                        continue
+
+                    prev_rect = curr_cluster[-1]["vis_rect"]
+                    curr_rect = ul["vis_rect"]
+
+                    v_gap = curr_rect.y0 - prev_rect.y1
+                    h_overlap = (curr_rect.x0 < prev_rect.x1 + 60) and (curr_rect.x1 > prev_rect.x0 - 60)
+
+                    # Cluster if consecutive vertical line with small gap and horizontal proximity
+                    if v_gap <= 25.0 and h_overlap:
+                        curr_cluster.append(ul)
+                    else:
+                        clusters.append(curr_cluster)
+                        curr_cluster = [ul]
+
+                if curr_cluster:
+                    clusters.append(curr_cluster)
+
+                for cluster in clusters:
+                    cluster_rect = cluster[0]["vis_rect"]
+                    for item in cluster[1:]:
+                        cluster_rect = cluster_rect | item["vis_rect"]
+
+                    full_text = "\n".join(item["text"] for item in cluster).strip()
+                    if full_text:
+                        candidates.append({
+                            "page_num": page_num,
+                            "y0": cluster_rect.y0,
+                            "x0": cluster_rect.x0,
+                            "y1": cluster_rect.y1,
+                            "x1": cluster_rect.x1,
+                            "page_width": pw,
+                            "page_height": ph,
+                            "author": fallback_author,
+                            "date_str": fallback_date,
+                            "comment_text": full_text,
+                            "annot_type": "Text Note",
+                            "has_popup_note": False,
+                            "popup_text": "",
+                        })
 
             raw_records.extend(candidates)
 
