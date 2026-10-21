@@ -186,17 +186,20 @@ export default function SplitScreenReviewModal({
     const scaleX = canvasDimensions.width / activeComment.page_width;
     const scaleY = canvasDimensions.height / activeComment.page_height;
 
-    const left = (activeComment.target_x0 || 0) * scaleX;
-    // PDF coordinates have origin at bottom-left in some specs or top-left in PyMuPDF rects
-    const top = (activeComment.target_y0 || 0) * scaleY;
-    const width = Math.max(
-      36,
-      ((activeComment.target_x1 || activeComment.target_x0 || 0) - (activeComment.target_x0 || 0)) * scaleX
-    );
-    const height = Math.max(
-      28,
-      ((activeComment.target_y1 || activeComment.target_y0 || 0) - (activeComment.target_y0 || 0)) * scaleY
-    );
+    const x0 = activeComment.target_x0 ?? 0;
+    const x1 = activeComment.target_x1 ?? x0;
+    const y0 = activeComment.target_y0 ?? 0;
+    const y1 = activeComment.target_y1 ?? y0;
+
+    const xMin = Math.min(x0, x1);
+    const xMax = Math.max(x0, x1);
+    const yMin = Math.min(y0, y1);
+    const yMax = Math.max(y0, y1);
+
+    const left = xMin * scaleX;
+    const top = yMin * scaleY;
+    const width = Math.max(40, (xMax - xMin) * scaleX);
+    const height = Math.max(28, (yMax - yMin) * scaleY);
 
     return {
       left: `${left}px`,
@@ -313,42 +316,43 @@ export default function SplitScreenReviewModal({
                       onClick={() => handleSelectComment(m)}
                       className={`transition-colors cursor-pointer group ${
                         isSelected
-                          ? "bg-primary-fixed/30 hover:bg-primary-fixed/40 font-medium"
-                          : "hover:bg-surface-container-high/60"
+                          ? "bg-emerald-50/80 border-l-4 border-emerald-600 font-semibold"
+                          : "hover:bg-slate-50/80 border-l-4 border-transparent"
                       }`}
                     >
-                      <td className="py-2 px-3 text-center font-mono text-[11px] font-semibold text-on-surface">
+                      <td className="py-2.5 px-3 text-center font-mono text-[11px] font-semibold text-on-surface">
                         <span
-                          className={`inline-block px-1.5 py-0.5 rounded ${
+                          className={`inline-block px-2 py-0.5 rounded font-mono text-[11px] font-bold ${
                             isSelected
-                              ? "bg-primary text-on-primary"
+                              ? "bg-emerald-600 text-white shadow-xs"
                               : "bg-surface-container-highest text-on-surface-variant"
                           }`}
                         >
                           #{m.item_no}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-center text-on-surface-variant font-mono text-[11px]">
+                      <td className="py-2.5 px-3 text-center text-on-surface-variant font-mono text-[11px]">
                         Pg {m.page_num}
                       </td>
-                      <td className="py-2 px-3 text-on-surface truncate max-w-[110px]" title={m.author}>
+                      <td className="py-2.5 px-3 text-on-surface truncate max-w-[110px]" title={m.author}>
                         {m.author || "Reviewer"}
                       </td>
-                      <td className="py-2 px-3 text-on-surface leading-snug whitespace-pre-wrap">
+                      <td className="py-2.5 px-3 text-on-surface leading-snug whitespace-pre-wrap">
                         {m.comment_text}
                       </td>
-                      <td className="py-2 px-3 text-center text-on-surface-variant font-mono text-[11px] whitespace-nowrap">
+                      <td className="py-2.5 px-3 text-center text-on-surface-variant font-mono text-[11px] whitespace-nowrap">
                         {m.date || "--"}
                       </td>
-                      <td className="py-2 px-3 text-center">
+                      <td className="py-2.5 px-3 text-center">
                         <span
                           className={`material-symbols-outlined text-[18px] transition-transform ${
                             isSelected
-                              ? "text-primary scale-125"
-                              : "text-outline-variant group-hover:text-primary"
+                              ? "text-emerald-600 scale-110 font-bold"
+                              : "text-slate-400 group-hover:text-emerald-600"
                           }`}
+                          title="View location in drawing"
                         >
-                          center_focus_strong
+                          crop_free
                         </span>
                       </td>
                     </tr>
@@ -455,16 +459,37 @@ export default function SplitScreenReviewModal({
             <div className="relative shadow-2xl rounded bg-white">
               <canvas ref={canvasRef} className="block rounded" />
 
-              {/* Glowing Dynamic Spotlight Box on the exact markup location */}
+              {/* Corner Bracket Anchor UI Style on the exact markup location */}
               {spotlightStyle && (
                 <div
                   ref={spotlightRef}
                   style={spotlightStyle}
-                  className="absolute pointer-events-none rounded border-2 border-amber-500 bg-amber-400/25 shadow-[0_0_15px_rgba(245,158,11,0.7)] animate-pulse transition-all duration-300 z-10 flex items-start justify-start"
+                  className="absolute pointer-events-none transition-all duration-200 z-20 flex items-start justify-start border border-emerald-500/25 bg-emerald-500/[0.03]"
                 >
-                  <span className="absolute -top-6 left-0 px-2 py-0.5 rounded bg-amber-600 text-white font-mono text-[10px] font-bold shadow tracking-tight whitespace-nowrap">
-                    🎯 Comment #{activeComment?.item_no} ({activeComment?.author})
-                  </span>
+                  {/* Top-Left 'L' Bracket */}
+                  <div className="absolute -top-[3px] -left-[3px] w-4 h-4 border-t-[3px] border-l-[3px] border-emerald-600 shadow-[0_0_6px_rgba(5,150,105,0.4)]" />
+
+                  {/* Top-Right 'L' Bracket */}
+                  <div className="absolute -top-[3px] -right-[3px] w-4 h-4 border-t-[3px] border-r-[3px] border-emerald-600 shadow-[0_0_6px_rgba(5,150,105,0.4)]" />
+
+                  {/* Bottom-Left 'L' Bracket */}
+                  <div className="absolute -bottom-[3px] -left-[3px] w-4 h-4 border-b-[3px] border-l-[3px] border-emerald-600 shadow-[0_0_6px_rgba(5,150,105,0.4)]" />
+
+                  {/* Bottom-Right 'L' Bracket */}
+                  <div className="absolute -bottom-[3px] -right-[3px] w-4 h-4 border-b-[3px] border-r-[3px] border-emerald-600 shadow-[0_0_6px_rgba(5,150,105,0.4)]" />
+
+                  {/* Floating Metadata Tag positioned cleanly outside above & left with connector stem */}
+                  <div className="absolute -top-9 -left-1 pointer-events-auto">
+                    <div className="relative inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-emerald-500/70 shadow-xl text-white font-mono text-[11px] font-semibold whitespace-nowrap">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>Comment #{activeComment?.item_no} • {activeComment?.author || "Reviewer"}</span>
+                      {activeComment?.date && (
+                        <span className="text-slate-400 font-normal">({activeComment.date})</span>
+                      )}
+                    </div>
+                    {/* Clean connector stem leading down to the top-left bracket */}
+                    <div className="w-[1.5px] h-2.5 bg-emerald-600 ml-4" />
+                  </div>
                 </div>
               )}
             </div>

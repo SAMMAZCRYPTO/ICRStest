@@ -133,11 +133,16 @@ def extract_pdf_annotations(
                         elif subj and subj.lower() not in (annot_type_name.lower(), "line", "shape", "square", "circle"):
                             clean_text = f"[{subj}]"
 
+                    # Convert unrotated annotation rect to visual page coordinates
+                    rot_m = page.rotation_matrix
+                    vis_rect = target_rect * rot_m
+
                     # Collect empty shapes/lines for proximity linking
                     if not clean_text and annot_type_name in ("Line", "PolyLine", "Ink", "Square", "Circle"):
                         empty_lines.append({
                             "annot": annot,
                             "rect": target_rect,
+                            "vis_rect": vis_rect,
                             "type_name": annot_type_name,
                             "author": author or "Reviewer",
                             "date_str": date_str,
@@ -148,10 +153,10 @@ def extract_pdf_annotations(
                     else:
                         candidates.append({
                             "page_num": page_num,
-                            "y0": target_rect.y0,
-                            "x0": target_rect.x0,
-                            "y1": target_rect.y1,
-                            "x1": target_rect.x1,
+                            "y0": vis_rect.y0,
+                            "x0": vis_rect.x0,
+                            "y1": vis_rect.y1,
+                            "x1": vis_rect.x1,
                             "page_width": pw,
                             "page_height": ph,
                             "author": author or "Reviewer",
@@ -165,13 +170,13 @@ def extract_pdf_annotations(
                 except Exception:
                     continue
 
-            # Check empty lines: if near an existing comment (within 75 pt), it is a pointer/arrow of that comment
+            # Check empty lines: if near an existing comment (within 75 pt in visual space), it is a pointer/arrow of that comment
             for el in empty_lines:
-                el_rect = el["rect"]
+                el_vis = el["vis_rect"]
                 near_candidate = None
                 min_dist = 999999.0
                 for cand in candidates:
-                    d = _bbox_distance(el_rect, pymupdf.Rect(cand["x0"], cand["y0"], cand["x0"] + 10, cand["y0"] + 10))
+                    d = _bbox_distance(el_vis, pymupdf.Rect(cand["x0"], cand["y0"], cand["x1"], cand["y1"]))
                     if d < min_dist:
                         min_dist = d
                         near_candidate = cand
@@ -183,10 +188,10 @@ def extract_pdf_annotations(
                     # Isolated line or shape markup: ensure it appears!
                     candidates.append({
                         "page_num": page_num,
-                        "y0": el["rect"].y0,
-                        "x0": el["rect"].x0,
-                        "y1": el["rect"].y1,
-                        "x1": el["rect"].x1,
+                        "y0": el_vis.y0,
+                        "x0": el_vis.x0,
+                        "y1": el_vis.y1,
+                        "x1": el_vis.x1,
                         "page_width": el.get("page_width", pw),
                         "page_height": el.get("page_height", ph),
                         "author": el["author"],
@@ -199,7 +204,7 @@ def extract_pdf_annotations(
 
             raw_records.extend(candidates)
 
-        # Sort all comments naturally by page, then top-to-bottom, left-to-right
+        # Sort all comments naturally by page, then visual top-to-bottom, left-to-right
         raw_records.sort(key=lambda r: (r["page_num"], r["y0"], r["x0"]))
 
         records: List[ExtractedComment] = []
