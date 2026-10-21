@@ -160,13 +160,6 @@ export default function Home() {
               v2.4 Stateless
             </div>
           </div>
-
-          <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-tertiary-fixed/30 border border-tertiary/20 px-3 py-1 rounded-full font-medium">
-              <span className="material-symbols-outlined text-[15px]">verified_user</span>
-              Zero Data Retention (RAM-Only)
-            </span>
-          </div>
         </div>
       </header>
 
@@ -195,10 +188,6 @@ export default function Home() {
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-mono font-medium border border-outline-variant/50 shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
                 v2.4 Stateless
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-tertiary-fixed/30 border border-tertiary/30 px-3 py-1 rounded-full font-medium shadow-2xs">
-                <span className="material-symbols-outlined text-[15px]">verified_user</span>
-                Zero Retention
               </span>
             </div>
           </div>
