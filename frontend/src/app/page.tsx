@@ -13,6 +13,10 @@ function getBackendUrl(): string {
     return process.env.NEXT_PUBLIC_BACKEND_URL;
   }
   if (typeof window !== "undefined" && window.location.hostname) {
+    // If accessed via standard domain (no port, or port 80/443), use same-origin relative calls
+    if (!window.location.port || window.location.port === "80" || window.location.port === "443") {
+      return "";
+    }
     return `${window.location.protocol}//${window.location.hostname}:8000`;
   }
   return "http://localhost:8000";

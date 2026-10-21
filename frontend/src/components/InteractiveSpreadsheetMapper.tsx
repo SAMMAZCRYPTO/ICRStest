@@ -158,7 +158,9 @@ export default function InteractiveSpreadsheetMapper({
         const backendUrl =
           process.env.NEXT_PUBLIC_BACKEND_URL ||
           (typeof window !== "undefined" && window.location.hostname
-            ? `${window.location.protocol}//${window.location.hostname}:8000`
+            ? (!window.location.port || window.location.port === "80" || window.location.port === "443"
+                ? ""
+                : `${window.location.protocol}//${window.location.hostname}:8000`)
             : "http://localhost:8000");
         const res = await fetch(`${backendUrl}/api/inspect-excel`, {
           method: "POST",
