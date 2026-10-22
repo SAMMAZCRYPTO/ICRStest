@@ -734,7 +734,7 @@ export default function InteractiveSpreadsheetMapper({
                   return (
                     <td key={`map-${col}`} className="p-1 border-r border-tertiary/30 text-center">
                       <div
-                        className={`rounded-md shadow-2xs px-2 py-0.5 flex items-center justify-between gap-1 text-[11px] font-semibold transition-all ${
+                        className={`relative rounded-md shadow-2xs px-2 py-0.5 flex items-center justify-between text-[11px] font-semibold transition-all ${
                           isMapped
                             ? "bg-white border-2 border-primary text-primary"
                             : "bg-surface-container-low border border-outline-variant/70 text-slate-700"
@@ -743,7 +743,7 @@ export default function InteractiveSpreadsheetMapper({
                         <select
                           value={assignedKey || "none"}
                           onChange={(e) => assignFieldToCol(col, e.target.value)}
-                          className="bg-transparent w-full text-[11px] font-semibold focus:outline-none cursor-pointer truncate"
+                          className="appearance-none bg-transparent w-full text-[11px] font-semibold focus:outline-none cursor-pointer truncate pr-4.5"
                         >
                           {SPREADSHEET_FIELDS.map((f) => (
                             <option key={f.key} value={f.key} className="text-slate-900 bg-white text-left font-normal">
@@ -751,7 +751,11 @@ export default function InteractiveSpreadsheetMapper({
                             </option>
                           ))}
                         </select>
-                        <span className="material-symbols-outlined text-[14px] shrink-0 pointer-events-none text-slate-500">
+                        <span
+                          className={`material-symbols-outlined text-[14px] shrink-0 pointer-events-none absolute right-1.5 ${
+                            isMapped ? "text-primary" : "text-slate-400"
+                          }`}
+                        >
                           expand_more
                         </span>
                       </div>
