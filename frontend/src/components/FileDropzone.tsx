@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { FileText, FileSpreadsheet, UploadCloud, X, CheckCircle } from "lucide-react";
 
 interface FileDropzoneProps {
@@ -25,15 +25,30 @@ export default function FileDropzone({
   extraInfo,
 }: FileDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isDragging) setIsDragging(true);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0];
       validateAndSet(droppedFile);
@@ -86,10 +101,16 @@ export default function FileDropzone({
       {!file ? (
         <div
           onClick={() => inputRef.current?.click()}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-          className={`bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all border-2 border-dashed border-outline-variant flex flex-col justify-between gap-space-md min-h-[175px] cursor-pointer group ${
-            iconType === "pdf" ? "hover:border-red-400" : "hover:border-primary"
+          className={`bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all border-2 border-dashed flex flex-col justify-between gap-space-md min-h-[175px] cursor-pointer group ${
+            isDragging
+              ? "border-primary bg-primary/5 ring-4 ring-primary/10 scale-[1.01]"
+              : iconType === "pdf"
+              ? "border-outline-variant hover:border-red-400"
+              : "border-outline-variant hover:border-primary"
           }`}
         >
           <div className="flex items-start justify-between">
@@ -123,9 +144,8 @@ export default function FileDropzone({
           </div>
 
           <div className="flex items-center justify-between text-xs text-on-surface-variant pt-2 border-t border-outline-variant/40">
-            <span className={`font-medium flex items-center gap-1.5 ${
-              iconType === "pdf" ? "text-red-600" : "text-primary"
-            }`}>
+            {/* Always retain blue color for click to browse / drop action */}
+            <span className="font-medium text-primary flex items-center gap-1.5 group-hover:text-primary-hover transition-colors">
               <span className="material-symbols-outlined text-[16px]">upload_file</span>
               Click to browse or drop {iconType === "pdf" ? ".pdf" : ".xlsx/.xlsm"}
             </span>
