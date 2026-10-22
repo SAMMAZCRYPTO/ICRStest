@@ -5,7 +5,7 @@ import { FileText, FileSpreadsheet, UploadCloud, X, CheckCircle } from "lucide-r
 
 interface FileDropzoneProps {
   label: string;
-  sublabel: string;
+  sublabel?: string;
   accept: string;
   file: File | null;
   onFileSelect: (file: File | null) => void;
@@ -105,9 +105,11 @@ export default function FileDropzone({
                 <span className="font-semibold text-[15px] text-on-surface">
                   {stepNumber}. {label}
                 </span>
-                <span className="text-xs text-on-surface-variant">
-                  {sublabel}
-                </span>
+                {sublabel && (
+                  <span className="text-xs text-on-surface-variant">
+                    {sublabel}
+                  </span>
+                )}
               </div>
             </div>
             <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-[11px] font-semibold">
@@ -144,9 +146,11 @@ export default function FileDropzone({
                 <span className="font-semibold text-[15px] text-on-surface">
                   {stepNumber}. {label}
                 </span>
-                <span className="text-xs text-on-surface-variant">
-                  {sublabel}
-                </span>
+                {sublabel && (
+                  <span className="text-xs text-on-surface-variant">
+                    {sublabel}
+                  </span>
+                )}
               </div>
             </div>
 

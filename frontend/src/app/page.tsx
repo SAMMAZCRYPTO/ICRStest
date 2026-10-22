@@ -213,15 +213,14 @@ export default function Home() {
               <FileDropzone
                 stepNumber="1"
                 label="Annotated PDF Drawing"
-                sublabel="Bluebeam Revu & Adobe Acrobat layer parses"
                 accept=".pdf"
                 file={pdfFile}
                 onFileSelect={setPdfFile}
                 iconType="pdf"
                 extraInfo={
                   pdfMarkupCount !== null
-                    ? `${pdfMarkupCount} Markups Extracted (Acrobat & Bluebeam)`
-                    : "18 Markups Extracted (Acrobat & Bluebeam)"
+                    ? `${pdfMarkupCount} Comments & Markups Extracted`
+                    : "Comments & Markups Extracted"
                 }
               />
 
@@ -229,7 +228,6 @@ export default function Home() {
               <FileDropzone
                 stepNumber="2"
                 label="Corporate Excel CRS Template"
-                sublabel="Macro-compatible layout preservation (.xlsx/.xlsm)"
                 accept=".xlsx,.xlsm"
                 file={excelFile}
                 onFileSelect={setExcelFile}

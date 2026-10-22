@@ -1161,7 +1161,7 @@ export default function InteractiveSpreadsheetMapper({
               Stateless In-Memory Injection Ready
             </span>
             <span className="text-xs text-slate-500">
-              Corporate macros, locked title blocks, formula chains, and XML cell relationships 100% preserved.
+              Locked title blocks, formula chains, and formatting 100% preserved.
             </span>
           </div>
         </div>
