@@ -88,13 +88,17 @@ export default function FileDropzone({
           onClick={() => inputRef.current?.click()}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-          className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all border-2 border-dashed border-outline-variant hover:border-primary flex flex-col justify-between gap-space-md min-h-[175px] cursor-pointer group"
+          className={`bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-all border-2 border-dashed border-outline-variant flex flex-col justify-between gap-space-md min-h-[175px] cursor-pointer group ${
+            iconType === "pdf" ? "hover:border-red-400" : "hover:border-primary"
+          }`}
         >
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-space-md">
               <div
-                className={`w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center transition-transform group-hover:scale-105 ${
-                  iconType === "pdf" ? "text-primary" : "text-tertiary"
+                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 ${
+                  iconType === "pdf"
+                    ? "bg-red-50 text-red-600 border border-red-200 shadow-sm"
+                    : "bg-surface-container-high text-tertiary"
                 }`}
               >
                 <span className="material-symbols-outlined text-[24px]">
@@ -119,7 +123,9 @@ export default function FileDropzone({
           </div>
 
           <div className="flex items-center justify-between text-xs text-on-surface-variant pt-2 border-t border-outline-variant/40">
-            <span className="font-medium text-primary flex items-center gap-1.5">
+            <span className={`font-medium flex items-center gap-1.5 ${
+              iconType === "pdf" ? "text-red-600" : "text-primary"
+            }`}>
               <span className="material-symbols-outlined text-[16px]">upload_file</span>
               Click to browse or drop {iconType === "pdf" ? ".pdf" : ".xlsx/.xlsm"}
             </span>
@@ -129,13 +135,15 @@ export default function FileDropzone({
       ) : (
         /* Card in Uploaded State (Exact Match to design/code.html) */
         <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-space-md relative overflow-hidden text-left border border-outline-variant/50">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-tertiary"></div>
+          <div className={`absolute top-0 left-0 w-1.5 h-full ${iconType === "pdf" ? "bg-red-500" : "bg-tertiary"}`}></div>
           
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-space-md">
               <div
-                className={`w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center ${
-                  iconType === "pdf" ? "text-primary" : "text-tertiary"
+                className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  iconType === "pdf"
+                    ? "bg-red-50 text-red-600 border border-red-200 shadow-sm"
+                    : "bg-surface-container-high text-tertiary"
                 }`}
               >
                 <span className="material-symbols-outlined text-[24px]">

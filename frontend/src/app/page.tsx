@@ -209,10 +209,10 @@ export default function Home() {
           {/* C. Dual Upload Dock (Cards 1 & 2) */}
           <div className="flex flex-col gap-space-md">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter-lg">
-              {/* Left Card: Annotated PDF Drawing */}
+              {/* Left Card: Upload Commented PDF */}
               <FileDropzone
                 stepNumber="1"
-                label="Annotated PDF Drawing"
+                label="Upload Commented PDF"
                 accept=".pdf"
                 file={pdfFile}
                 onFileSelect={setPdfFile}
@@ -224,10 +224,10 @@ export default function Home() {
                 }
               />
 
-              {/* Right Card: Corporate Excel CRS Template */}
+              {/* Right Card: Upload Comment resolution sheet template */}
               <FileDropzone
                 stepNumber="2"
-                label="Corporate Excel CRS Template"
+                label="Upload Comment resolution sheet template"
                 accept=".xlsx,.xlsm"
                 file={excelFile}
                 onFileSelect={setExcelFile}
