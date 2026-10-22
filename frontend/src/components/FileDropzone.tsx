@@ -116,22 +116,33 @@ export default function FileDropzone({
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-space-md">
               <div
-                className={`w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105 ${
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 shrink-0 ${
                   iconType === "pdf"
                     ? "bg-red-50 text-red-600 border border-red-200 shadow-sm"
-                    : "bg-surface-container-high text-tertiary"
+                    : "bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm"
                 }`}
               >
-                <span className="material-symbols-outlined text-[24px]">
+                <span className="material-symbols-outlined text-[26px]">
                   {iconType === "pdf" ? "picture_as_pdf" : "table_view"}
                 </span>
               </div>
-              <div className="flex flex-col text-left">
-                <span className="font-semibold text-[15px] text-on-surface">
-                  {stepNumber}. {label}
-                </span>
+              <div className="flex flex-col text-left gap-0.5">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase border shadow-2xs ${
+                      stepNumber === "1"
+                        ? "bg-red-100/80 text-red-700 border-red-200"
+                        : "bg-emerald-100/80 text-emerald-700 border-emerald-200"
+                    }`}
+                  >
+                    STEP {stepNumber}
+                  </span>
+                  <span className="font-bold text-[16px] text-on-surface tracking-tight">
+                    {label}
+                  </span>
+                </div>
                 {sublabel && (
-                  <span className="text-xs text-on-surface-variant">
+                  <span className="text-xs text-on-surface-variant leading-relaxed">
                     {sublabel}
                   </span>
                 )}
@@ -155,27 +166,38 @@ export default function FileDropzone({
       ) : (
         /* Card in Uploaded State (Exact Match to design/code.html) */
         <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between gap-space-md relative overflow-hidden text-left border border-outline-variant/50">
-          <div className={`absolute top-0 left-0 w-1.5 h-full ${iconType === "pdf" ? "bg-red-500" : "bg-tertiary"}`}></div>
+          <div className={`absolute top-0 left-0 w-1.5 h-full ${iconType === "pdf" ? "bg-red-500" : "bg-emerald-500"}`}></div>
           
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-space-md">
               <div
-                className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
                   iconType === "pdf"
                     ? "bg-red-50 text-red-600 border border-red-200 shadow-sm"
-                    : "bg-surface-container-high text-tertiary"
+                    : "bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm"
                 }`}
               >
-                <span className="material-symbols-outlined text-[24px]">
+                <span className="material-symbols-outlined text-[26px]">
                   {iconType === "pdf" ? "picture_as_pdf" : "table_view"}
                 </span>
               </div>
-              <div className="flex flex-col">
-                <span className="font-semibold text-[15px] text-on-surface">
-                  {stepNumber}. {label}
-                </span>
+              <div className="flex flex-col text-left gap-0.5">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold tracking-wider uppercase border shadow-2xs ${
+                      stepNumber === "1"
+                        ? "bg-red-100/80 text-red-700 border-red-200"
+                        : "bg-emerald-100/80 text-emerald-700 border-emerald-200"
+                    }`}
+                  >
+                    STEP {stepNumber}
+                  </span>
+                  <span className="font-bold text-[16px] text-on-surface tracking-tight">
+                    {label}
+                  </span>
+                </div>
                 {sublabel && (
-                  <span className="text-xs text-on-surface-variant">
+                  <span className="text-xs text-on-surface-variant leading-relaxed">
                     {sublabel}
                   </span>
                 )}

@@ -205,6 +205,7 @@ export default function Home() {
               <FileDropzone
                 stepNumber="1"
                 label="Annotated PDF Drawing"
+                sublabel="Upload marked-up engineering drawings with reviewer comments & callouts."
                 accept=".pdf"
                 file={pdfFile}
                 onFileSelect={setPdfFile}
@@ -220,6 +221,7 @@ export default function Home() {
               <FileDropzone
                 stepNumber="2"
                 label="Corporate Excel CRS Template"
+                sublabel="Upload your company's blank CRS matrix (.xlsx/.xlsm) with header row."
                 accept=".xlsx,.xlsm"
                 file={excelFile}
                 onFileSelect={setExcelFile}
