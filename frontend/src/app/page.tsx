@@ -235,112 +235,48 @@ export default function Home() {
             </div>
 
             {/* Helper links & Download Sample Files */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-1 text-xs text-on-surface-variant">
-              <span className="text-[11px] text-outline font-medium">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-1 text-xs text-slate-500">
+              <span className="text-[11px] text-slate-400 font-medium">
                 Max 500MB (PDF) · Max 100MB (Excel) · Stateless In-Memory Sandbox
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-outline-variant hidden sm:inline">•</span>
-                <span className="font-medium text-on-surface-variant/80">Need sample files?</span>
+                <span className="text-slate-300 hidden sm:inline">•</span>
+                <span className="font-medium text-slate-600">Need sample files?</span>
                 <a
                   href="/sample_annotated_drawing.pdf"
                   download="sample_annotated_drawing.pdf"
-                  className="text-primary hover:text-primary-hover font-semibold inline-flex items-center gap-1 transition-colors"
+                  className="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[15px]">download</span>
                   Sample PDF
                 </a>
-                <span className="text-outline-variant">•</span>
+                <span className="text-slate-300">•</span>
                 <a
                   href="/sample_corporate_template.xlsx"
                   download="sample_corporate_template.xlsx"
-                  className="text-primary hover:text-primary-hover font-semibold inline-flex items-center gap-1 transition-colors"
+                  className="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[15px]">download</span>
                   Sample Excel
                 </a>
               </div>
             </div>
-
-            {/* Primary High-Contrast Action CTA: Generate Resolution Sheet */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/40 shadow-xs mt-1">
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                  pdfFile && excelFile
-                    ? "bg-primary-fixed text-primary font-bold"
-                    : "bg-surface-container-high text-on-surface-variant/50"
-                }`}>
-                  <span className="material-symbols-outlined text-[22px]">bolt</span>
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="font-bold text-sm text-on-surface">Generate Resolution Sheet</span>
-                  <span className="text-xs text-on-surface-variant">
-                    {!pdfFile && !excelFile
-                      ? "Upload both your annotated PDF (Step 1) and Excel CRS template (Step 2) to generate."
-                      : !pdfFile
-                      ? "Please upload your annotated PDF (Step 1) to continue."
-                      : !excelFile
-                      ? "Please upload your Excel CRS template (Step 2) to continue."
-                      : "Both files uploaded and ready. Generate your final resolution sheet or inspect anchors in Step 3."}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                disabled={!pdfFile || !excelFile || isProcessing}
-                onClick={() => {
-                  if (activeMappingConfig) {
-                    handleProcess(activeMappingConfig);
-                  } else {
-                    handleProcess({
-                      sheet_name: activeSheetName || undefined,
-                      header_row: 10,
-                      data_start_row: 11,
-                      columns: {
-                        item_no: "A",
-                        page_num: "B",
-                        author: "C",
-                        date: "D",
-                        comment_text: "E",
-                      },
-                    });
-                  }
-                }}
-                className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm tracking-wide shadow-md transition-all flex items-center justify-center gap-2 ${
-                  pdfFile && excelFile && !isProcessing
-                    ? "bg-primary hover:bg-primary-hover text-on-primary cursor-pointer hover:shadow-lg active:scale-[0.98]"
-                    : "bg-surface-container text-on-surface-variant/40 cursor-not-allowed opacity-60 border border-outline-variant/40"
-                }`}
-              >
-                {isProcessing ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                    Generating CRS...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-[18px]">bolt</span>
-                    Generate Resolution Sheet
-                  </>
-                )}
-              </button>
-            </div>
           </div>
 
-          {/* D. STEP 3: SPREAD SHEET PREVIEW & GENERATION */}
+          {/* D. STEP 3: SPREADSHEET MAPPING PREVIEW */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-outline-variant/30 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs font-mono">
-                  3
-                </div>
-                <h2 className="text-base sm:text-lg font-bold text-on-surface tracking-tight">
-                  Step 3: Spread Sheet Preview & Generation
+                {/* Unified Neutral Enterprise Step Badge */}
+                <span className="bg-slate-100 text-slate-700 font-semibold text-xs tracking-wider px-2 py-1 rounded">
+                  STEP 3
+                </span>
+                <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  Spreadsheet Mapping Preview
                 </h2>
               </div>
               {excelFile && (
-                <span className="text-xs text-on-surface-variant font-medium hidden sm:inline">
+                <span className="text-xs text-slate-500 font-medium hidden sm:inline">
                   Interactive Auto-Anchored Cell Mapper
                 </span>
               )}
@@ -364,17 +300,17 @@ export default function Home() {
               />
             ) : (
               /* Dedicated Step 3 Preview Container (Replaces old dashed placeholder) */
-              <div className="bg-surface-container-lowest rounded-xl p-8 sm:p-12 border border-outline-variant/50 shadow-xs text-center flex flex-col items-center justify-center gap-3.5">
-                <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
-                  <span className="material-symbols-outlined text-[28px]">table_view</span>
+              <div className="bg-white rounded-xl p-8 sm:p-12 border border-slate-200 shadow-xs text-center flex flex-col items-center justify-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+                  <span className="material-symbols-outlined text-[26px]">table_view</span>
                 </div>
                 <div className="flex flex-col gap-1 max-w-md">
-                  <h3 className="font-bold text-sm sm:text-base text-on-surface">
+                  <h3 className="font-bold text-sm sm:text-base text-slate-900">
                     Spreadsheet Preview & Anchor Mapping
                   </h3>
-                  <p className="text-xs text-on-surface-variant leading-relaxed">
+                  <p className="text-xs text-slate-500 leading-relaxed">
                     Upload your corporate Excel template in Step 2 above to render the live spreadsheet grid,
-                    inspect auto-detected columns, and verify cell anchors before generation.
+                    inspect auto-detected columns, and verify cell anchors before generating.
                   </p>
                 </div>
               </div>

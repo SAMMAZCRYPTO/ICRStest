@@ -1149,16 +1149,16 @@ export default function InteractiveSpreadsheetMapper({
       </div>
 
       {/* =========================================================================
-          5. ELEVATED BOTTOM ACTION CARD (Decoupled to Prevent Overlap)
+          5. STEP 4: ELEVATED BOTTOM ACTION RIBBON
           ========================================================================= */}
-      <div className="w-full bg-surface-container-lowest border border-outline-variant/60 rounded-xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-full bg-tertiary-fixed/60 flex items-center justify-center text-tertiary shrink-0">
-            <span className="material-symbols-outlined text-[24px]">verified_user</span>
-          </div>
+      <div className="w-full bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="bg-slate-100 text-slate-700 font-semibold text-xs tracking-wider px-2 py-1 rounded shrink-0">
+            STEP 4
+          </span>
           <div className="flex flex-col text-left">
             <span className="font-bold text-sm text-slate-900">
-              Stateless In-Memory Injection Ready
+              Generate Resolution Sheet
             </span>
             <span className="text-xs text-slate-500">
               Locked title blocks, formula chains, and formatting 100% preserved.
@@ -1170,7 +1170,7 @@ export default function InteractiveSpreadsheetMapper({
           <button
             type="button"
             onClick={() => autoDetectHeadersAndMap(workbook!, selectedSheet)}
-            className="px-4 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-slate-800 font-semibold text-xs border border-outline-variant/50 transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors cursor-pointer"
           >
             Modify Mappings
           </button>
@@ -1179,7 +1179,7 @@ export default function InteractiveSpreadsheetMapper({
             <button
               type="button"
               onClick={() => onOpenSplitReview?.(getCurrentConfig())}
-              className="px-4 py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs transition-all shadow-sm hover:shadow flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-semibold text-xs transition-all flex items-center gap-1.5 cursor-pointer"
               title="Open side-by-side split screen linking Excel comments to the PDF drawing"
             >
               <span className="material-symbols-outlined text-[17px]">splitscreen</span>
@@ -1191,16 +1191,17 @@ export default function InteractiveSpreadsheetMapper({
             type="button"
             onClick={handleConfirm}
             disabled={isProcessing}
-            className="px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all shadow-md hover:shadow-lg flex items-center gap-2 group cursor-pointer disabled:opacity-50"
+            className="px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all shadow-sm hover:shadow flex items-center gap-2 group cursor-pointer disabled:opacity-50"
           >
             {isProcessing ? (
               <>
                 <span className="material-symbols-outlined text-[18px] animate-spin">refresh</span>
-                <span>Generating...</span>
+                <span>Generating Resolution Sheet...</span>
               </>
             ) : (
               <>
-                <span>Generate</span>
+                <span className="material-symbols-outlined text-[18px]">bolt</span>
+                <span>Generate Resolution Sheet</span>
                 <span className="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">
                   arrow_forward
                 </span>

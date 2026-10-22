@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "ICRS Studio - PDF to Excel Comment Resolution Sheet Generator",
   description: "Enterprise B2B micro-SaaS for automated PDF markup extraction and corporate Excel CRS injection with zero data retention.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
