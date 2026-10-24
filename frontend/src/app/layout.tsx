@@ -27,6 +27,11 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="361fb3d3-f590-4f5f-9703-cc279e6a1435"
+        />
       </head>
       <body className="min-h-screen bg-surface font-sans text-on-surface antialiased selection:bg-tertiary-fixed selection:text-on-tertiary-fixed">
         {children}

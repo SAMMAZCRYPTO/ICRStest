@@ -234,32 +234,11 @@ export default function Home() {
               />
             </div>
 
-            {/* Helper links & Download Sample Files */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-1 text-xs text-slate-500">
+            {/* Helper limits info */}
+            <div className="px-1 text-xs text-slate-500">
               <span className="text-[11px] text-slate-400 font-medium">
                 Max 500MB (PDF) · Max 100MB (Excel) · Stateless In-Memory Sandbox
               </span>
-              <div className="flex items-center gap-2">
-                <span className="text-slate-300 hidden sm:inline">•</span>
-                <span className="font-medium text-slate-600">Need sample files?</span>
-                <a
-                  href="/sample_annotated_drawing.pdf"
-                  download="sample_annotated_drawing.pdf"
-                  className="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[15px]">download</span>
-                  Sample PDF
-                </a>
-                <span className="text-slate-300">•</span>
-                <a
-                  href="/sample_corporate_template.xlsx"
-                  download="sample_corporate_template.xlsx"
-                  className="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[15px]">download</span>
-                  Sample Excel
-                </a>
-              </div>
             </div>
           </div>
 
